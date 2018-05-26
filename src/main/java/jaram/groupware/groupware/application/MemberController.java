@@ -1,13 +1,11 @@
 package jaram.groupware.groupware.application;
 
 import jaram.groupware.groupware.model.Member;
-import jaram.groupware.groupware.model.value.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.List;
