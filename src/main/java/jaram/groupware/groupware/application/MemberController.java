@@ -20,12 +20,10 @@ import java.util.Map;
 public class MemberController {
     @Autowired
     Member member;
-    private List<Member> members = member.getMembers();
 
     
-    @RequestMapping(path = "/mamber", method = RequestMethod.POST)
+    @RequestMapping(path = "/member", method = RequestMethod.POST)
     public String addMember(Map<String, Object> model, HttpServletRequest request){
-        model.put("isError", false);
 
         String cardinalNumber = request.getParameter("cardinalNumber");
         String name = request.getParameter("name");
@@ -34,15 +32,14 @@ public class MemberController {
 
         if (cardinalNumber == null || name == null || phone == null || email == null ||
                 !member.checkIntegrity(new Email(email))){
-            model.put("isError", "true");
-            model.put("members", members);
+            model.put("isError", true);
 
-            return "lookUPMembers";
+            return "addMember";
         }
 
         Member newMember = new Member(Integer.parseInt(cardinalNumber), name, phone, email);
         member.addMember(newMember);
-        members = member.getMembers();
+        List<Member> members = member.getMembers();
 
         model.put("members", members);
 
