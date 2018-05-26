@@ -20,7 +20,6 @@ import java.util.Map;
 public class MemberController {
     @Autowired
     Member member;
-    private List<Member> members = member.getMembers();
 
 
     @RequestMapping(path = "/member", method = RequestMethod.PUT)
@@ -44,10 +43,17 @@ public class MemberController {
         } else if (searchCardinalNumber != null && searchName != null){
             member = this.member.searchMembers(new CardinalNumber(Integer.parseInt(cardinalNumber)), new Name(searchName));
         } else {
-            model.put("isError", true);
+            List<Member> members = this.member.getMembers();
             model.put("members", members);
 
             return "lookUPMembers";
+        }
+
+        if (cardinalNumber.equals("") || name.equals("") || position.equals("") || phone.equals("")
+                || email.equals("") || attendingState.equals("")){
+            model.put("isError", true);
+
+            return "updateMember";
         }
 
         member.updateMember(Integer.parseInt(cardinalNumber), name, position, phone, email, attendingState);
