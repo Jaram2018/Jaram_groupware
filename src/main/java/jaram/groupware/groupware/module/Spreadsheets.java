@@ -16,6 +16,7 @@ import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import jaram.groupware.groupware.model.Member;
 import jaram.groupware.groupware.repository.MemberRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +29,9 @@ import java.util.List;
 
 public class Spreadsheets implements MemberRepository {
     public Spreadsheets(){}
+
+    @Autowired
+    Member member;
 
     private static final String APPLICATION_NAME = "jaram_groupware";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
@@ -105,8 +109,17 @@ public class Spreadsheets implements MemberRepository {
     }
 
     @Override
-    public List<Member> findMemberByCardinalNumber(int cardinalNumber) {
-        return null;
+    public List<Member> findMemberByCardinalNumber(int cardinalNumber) throws IOException, GeneralSecurityException {
+        List<Member> members = this.findAllMembers();
+        List<Member> result = new LinkedList<>();
+
+        for (Member member : members) {
+            if (member.cardinalNumber == cardinalNumber) {
+                result.add(member);
+            }
+        }
+
+        return result;
     }
 
     @Override

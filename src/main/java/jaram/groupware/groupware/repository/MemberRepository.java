@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface MemberRepository {
     public List<Member> findAllMembers() throws IOException, GeneralSecurityException;
-    public List<Member> findMemberByCardinalNumber(int cardinalNumber);
+    public List<Member> findMemberByCardinalNumber(int cardinalNumber) throws IOException, GeneralSecurityException;
     public List<Member> findMemberByName(String name);
     public List<Member> findMemberByPosition(String position);
     public List<Member> findMemberByPhone(String phone);
