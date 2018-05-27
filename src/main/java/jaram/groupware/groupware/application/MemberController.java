@@ -20,10 +20,11 @@ import java.util.Map;
 public class MemberController {
     @Autowired
     Member member;
+
     private List<Member> members = member.getMembers();
 
     @RequestMapping(path = "/members", method = RequestMethod.POST)
-    public String searchMembers(Map<String, Object> model, HttpServletRequest request){
+    public String searchMembers(Map<String, Object> model, HttpServletRequest request) {
         model.put("isError", false);
 
         String cardinalNumber = request.getParameter("cardinalNumber");
@@ -35,17 +36,17 @@ public class MemberController {
 
         List<Member> members;
 
-        if (attendingState != null){
+        if (attendingState != null) {
             members = member.searchMembers(new AttendingState(attendingState));
-        } else if (cardinalNumber != null){
+        } else if (cardinalNumber != null) {
             members = member.searchMembers(new CardinalNumber(Integer.parseInt(cardinalNumber)));
-        } else if (email != null){
+        } else if (email != null) {
             members = member.searchMembers(new Email(email));
-        } else if (name != null){
+        } else if (name != null) {
             members = member.searchMembers(new Name(name));
-        } else if (phone != null){
+        } else if (phone != null) {
             members = member.searchMembers(new Phone(phone));
-        } else if (position != null){
+        } else if (position != null) {
             members = member.searchMembers(new Position(position));
         } else {
             members = new LinkedList<>();
@@ -54,5 +55,29 @@ public class MemberController {
         model.put("members", members);
 
         return "searchMembers";
+    }
+
+    @RequestMapping(path = "/member", method = RequestMethod.POST)
+    public String addMember(Map<String, Object> model, HttpServletRequest request) {
+
+        String cardinalNumber = request.getParameter("cardinalNumber");
+        String name = request.getParameter("name");
+        String phone = request.getParameter("phone");
+        String email = request.getParameter("email");
+
+        if (cardinalNumber == null || name == null || phone == null || email == null ||
+                !member.checkIntegrity(email)) {
+            model.put("isError", true);
+
+            return "addMember";
+        }
+
+        Member newMember = new Member(Integer.parseInt(cardinalNumber), name, phone, email);
+        member.addMember(newMember);
+        List<Member> members = member.getMembers();
+
+        model.put("members", members);
+
+        return "lookUPMembers";
     }
 }
