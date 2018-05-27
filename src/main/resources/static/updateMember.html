@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>회원 수정</title>
+</head>
+<body>
+<h2>회원 수정</h2>
+<hr />
+<form action="/member" method="post">
+    기수:<br>
+    <input type="number" name="cardinalNumber">
+    <br>
+    이름:<br>
+    <input type="text" name="name">
+    <br>
+    직책:<br>
+    <select name="position">
+        <option value="수습" selected>수습</option>
+        <option value="준회원">준회원</option>
+        <option value="정회원">정회원</option>
+        <option value="준OB">준OB</option>
+        <option value="OB">OB</option>
+        <option value="회장">회장</option>
+        <option value="부회장">부회장</option>
+        <option value="회계">회계</option>
+        <option value="학술부장">학술부장</option>
+        <option value="섭외부장">섭외부장</option>
+        <option value="서버관리자">서버관리자</option>
+    </select>
+    <br>
+    전화번호:<br>
+    <input type="text" name="email">
+    <br>
+    이메일:<br>
+    <input type="email" name="email">
+    <br>
+    재학여부:<br>
+    <select name="attendingState">
+        <option value="재학" selected>재학</option>
+        <option value="휴학">휴학</option>
+        <option value="졸업">졸업</option>
+    </select>
+    <br><br>
+    <input type="submit">
+</form>
+</body>
+</html>
