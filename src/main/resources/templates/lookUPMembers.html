@@ -1,0 +1,22 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Members</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+</head>
+<body>
+
+<div class="container">
+
+
+    <h1>lookUPMembers</h1>
+    <p th:each="member : ${members}">
+        <span th:text="'Message: ' + ${member.cardinalNumber}"></span>
+    </p>
+
+
+</div>
+
+</body>
+</html>

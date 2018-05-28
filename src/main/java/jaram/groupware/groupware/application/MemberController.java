@@ -21,6 +21,16 @@ public class MemberController {
     @Autowired
     MemberModel memberModel;
 
+    @RequestMapping(value = "/", method = RequestMethod.GET)
+    public String lookupMembers(Map<String, Object> model) {
+
+        List<MemberModel> members = MemberModel.getMembers();
+
+        model.put("members", members);
+
+        return "lookupMembers";
+    }
+
     @RequestMapping(path = "/members", method = RequestMethod.POST)
     public String searchMembers(Map<String, Object> model, HttpServletRequest request) {
         String cardinalNumber = request.getParameter("cardinalNumber");
@@ -72,7 +82,7 @@ public class MemberController {
 
         model.put("members", memberModels);
 
-        return "lookUPMembers";
+        return "lookupMembers";
     }
 
     @RequestMapping(path = "/member", method = RequestMethod.PUT)
@@ -97,7 +107,7 @@ public class MemberController {
             List<MemberModel> memberModels = this.memberModel.getMembers();
             model.put("members", memberModels);
 
-            return "lookUPMembers";
+            return "lookupMembers";
         }
 
         if (cardinalNumber.equals("") || name.equals("") || position.equals("") || phone.equals("")
@@ -112,6 +122,6 @@ public class MemberController {
         List<MemberModel> memberModels = this.getMembers();
         model.put("members", memberModels);
 
-        return "lookUPMembers";
+        return "lookupMembers";
     }
 }

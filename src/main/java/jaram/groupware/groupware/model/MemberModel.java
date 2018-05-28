@@ -1,9 +1,20 @@
 package jaram.groupware.groupware.model;
 
+import jaram.groupware.groupware.persistent.AccountEventHistory;
+import jaram.groupware.groupware.repository.AccountEventRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.LinkedList;
+import java.util.List;
+
+/**
+ * Created by NamHyunsil on 2018. 5. 15..
+ */
 
 @Component
 public class MemberModel {
+    // FIXME position, attendingState  enum으로 변경
     public int cardinalNumber;
     public String name;
     public String position;
