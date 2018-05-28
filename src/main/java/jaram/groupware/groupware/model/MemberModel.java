@@ -13,7 +13,7 @@ import java.util.List;
  */
 
 //@Component
-public class Member {
+public class MemberModel {
     public int cardinalNumber;
     public String name;
     public String position;
@@ -21,18 +21,18 @@ public class Member {
     public String email;
     public Boolean isAttending;
 
-    public Member(int cardinalNumber, String name, String email){
+    public MemberModel(int cardinalNumber, String name, String email){
         this.cardinalNumber = cardinalNumber;
         this.name = name;
         this.email = email;
     }
 
 
-    public static List<Member> getMembers(){
-        List<Member> members = new LinkedList<>();
-        members.add(new Member(31,"남현실","hsilnam3"));
-        members.add(new Member(32,"남현실","hsilnam2"));
-        members.add(new Member(33,"남현실","hsilnam1"));
+    public static List<MemberModel> getMembers(){
+        List<MemberModel> members = new LinkedList<>();
+        members.add(new MemberModel(31,"남현실","hsilnam3"));
+        members.add(new MemberModel(32,"남현실","hsilnam2"));
+        members.add(new MemberModel(33,"남현실","hsilnam1"));
 
         return members;
     }
