@@ -1,5 +1,4 @@
 package jaram.groupware.groupware.model;
-
 import jaram.groupware.groupware.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,6 +13,7 @@ import java.util.List;
 
 @Component
 public class MemberModel {
+    // FIXME position, attendingState  enum으로 변경
     public int cardinalNumber;
     public String name;
     public String position;
