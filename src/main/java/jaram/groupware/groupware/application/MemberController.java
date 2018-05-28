@@ -1,6 +1,6 @@
 package jaram.groupware.groupware.application;
 
-import jaram.groupware.groupware.model.Member;
+import jaram.groupware.groupware.model.MemberModel;
 import jaram.groupware.groupware.model.value.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,7 +19,7 @@ import java.util.Map;
 @Controller
 public class MemberController {
     @Autowired
-    Member member;
+    MemberModel memberModel;
 
     @RequestMapping(path = "/members", method = RequestMethod.POST)
     public String searchMembers(Map<String, Object> model, HttpServletRequest request) {
@@ -30,24 +30,24 @@ public class MemberController {
         String email = request.getParameter("email");
         String attendingState = request.getParameter("attendingState");
 
-        List<Member> members;
+        List<MemberModel> memberModels;
         if (attendingState != null) {
-            members = member.searchMembers(new AttendingState(attendingState));
+            memberModels = memberModel.searchMembers(new AttendingState(attendingState));
         } else if (cardinalNumber != null) {
-            members = member.searchMembers(new CardinalNumber(Integer.parseInt(cardinalNumber)));
+            memberModels = memberModel.searchMembers(new CardinalNumber(Integer.parseInt(cardinalNumber)));
         } else if (email != null) {
-            members = member.searchMembers(new Email(email));
+            memberModels = memberModel.searchMembers(new Email(email));
         } else if (name != null) {
-            members = member.searchMembers(new Name(name));
+            memberModels = memberModel.searchMembers(new Name(name));
         } else if (phone != null) {
-            members = member.searchMembers(new Phone(phone));
+            memberModels = memberModel.searchMembers(new Phone(phone));
         } else if (position != null) {
-            members = member.searchMembers(new Position(position));
+            memberModels = memberModel.searchMembers(new Position(position));
         } else {
-            members = new LinkedList<>();
+            memberModels = new LinkedList<>();
         }
 
-        model.put("members", members);
+        model.put("members", memberModels);
 
         return "searchMembers";
     }
@@ -60,17 +60,17 @@ public class MemberController {
         String email = request.getParameter("email");
 
         if (cardinalNumber == null || name == null || phone == null || email == null ||
-                !member.checkIntegrity(email)) {
+                !memberModel.checkIntegrity(email)) {
             model.put("isError", true);
 
             return "addMember";
         }
 
-        Member newMember = new Member(Integer.parseInt(cardinalNumber), name, phone, email);
-        member.addMember(newMember);
-        List<Member> members = member.getMembers();
+        MemberModel newMemberModel = new MemberModel(Integer.parseInt(cardinalNumber), name, phone, email);
+        memberModel.addMember(newMemberModel);
+        List<MemberModel> memberModels = memberModel.getMembers();
 
-        model.put("members", members);
+        model.put("members", memberModels);
 
         return "lookUPMembers";
     }
@@ -88,29 +88,29 @@ public class MemberController {
         String email = request.getParameter("email");
         String attendingState = request.getParameter("attendingState");
 
-        List<Member> member;
+        List<MemberModel> memberModel;
         if (searchEmail != null) {
-            member = this.member.searchMembers(new Email(searchEmail));
+            memberModel = this.memberModel.searchMembers(new Email(searchEmail));
         } else if (searchCardinalNumber != null && searchName != null) {
-            member = this.member.searchMembers(new CardinalNumber(Integer.parseInt(cardinalNumber)), new Name(searchName));
+            memberModel = this.memberModel.searchMembers(new CardinalNumber(Integer.parseInt(cardinalNumber)), new Name(searchName));
         } else {
-            List<Member> members = this.member.getMembers();
-            model.put("members", members);
+            List<MemberModel> memberModels = this.memberModel.getMembers();
+            model.put("members", memberModels);
 
             return "lookUPMembers";
         }
 
         if (cardinalNumber.equals("") || name.equals("") || position.equals("") || phone.equals("")
-                || email.equals("") || attendingState.equals("") || member.size() > 1) {
+                || email.equals("") || attendingState.equals("") || memberModel.size() > 1) {
             model.put("isError", true);
 
             return "updateMember";
         }
 
-        member.updateMember(Integer.parseInt(cardinalNumber), name, position, phone, email, attendingState);
+        memberModel.updateMember(Integer.parseInt(cardinalNumber), name, position, phone, email, attendingState);
 
-        List<Member> members = this.getMembers();
-        model.put("members", members);
+        List<MemberModel> memberModels = this.getMembers();
+        model.put("members", memberModels);
 
         return "lookUPMembers";
     }
