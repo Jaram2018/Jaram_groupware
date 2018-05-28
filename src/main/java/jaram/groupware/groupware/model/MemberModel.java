@@ -13,7 +13,7 @@ import java.util.List;
  */
 
 @Component
-public class Member {
+public class MemberModel {
     public int cardinalNumber;
     public String name;
     public String position;
@@ -24,11 +24,11 @@ public class Member {
     @Autowired
     private MemberRepository memberRepository;
 
-    public Member() {
+    public MemberModel() {
 
     }
 
-    public Member(int cardinalNumber, String name, String position, String phone, String email, String attendingState){
+    public MemberModel(int cardinalNumber, String name, String position, String phone, String email, String attendingState){
         this.cardinalNumber = cardinalNumber;
         this.name = name;
         this.email = email;
@@ -37,7 +37,7 @@ public class Member {
         this.attendingState = attendingState;
     }
 
-    public Member(int cardinalNumber, String name, String phone, String email){
+    public MemberModel(int cardinalNumber, String name, String phone, String email){
         this.cardinalNumber = cardinalNumber;
         this.name = name;
         this.email = email;
@@ -46,7 +46,7 @@ public class Member {
         this.attendingState = "재학";
     }
 
-    public List<Member> getMembers() throws IOException, GeneralSecurityException {
+    public List<MemberModel> getMembers() throws IOException, GeneralSecurityException {
         // Build a new authorized API client service.
         return this.memberRepository.findAllMembers();
     }

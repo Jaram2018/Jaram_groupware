@@ -1,6 +1,6 @@
 package jaram.groupware.groupware.application;
 
-import jaram.groupware.groupware.model.Member;
+import jaram.groupware.groupware.model.MemberModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,14 +18,14 @@ import java.util.Map;
 @Controller
 public class MemberController {
     @Autowired
-    private Member member;
+    private MemberModel memberModel;
 
     @RequestMapping(path = "/", method = RequestMethod.GET)
     public String lookupMembers(Map<String, Object> model) throws IOException, GeneralSecurityException{
 
-        List<Member> members = member.getMembers();
+        List<MemberModel> memberModels = memberModel.getMembers();
 
-        model.put("members", members);
+        model.put("members", memberModels);
 
         return "lookUPMembers";
     }

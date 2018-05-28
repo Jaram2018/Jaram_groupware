@@ -14,7 +14,7 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
-import jaram.groupware.groupware.model.Member;
+import jaram.groupware.groupware.model.MemberModel;
 import jaram.groupware.groupware.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -31,7 +31,7 @@ public class Spreadsheets implements MemberRepository {
     public Spreadsheets(){}
 
     @Autowired
-    Member member;
+    MemberModel memberModel;
 
     private static final String APPLICATION_NAME = "jaram_groupware";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
@@ -43,7 +43,7 @@ public class Spreadsheets implements MemberRepository {
 
     private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
         // Load client secrets.
-        InputStream in = Member.class.getResourceAsStream(CLIENT_SECRET_DIR);
+        InputStream in = MemberModel.class.getResourceAsStream(CLIENT_SECRET_DIR);
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
 
         // Build flow and trigger user authorization request.
@@ -56,7 +56,7 @@ public class Spreadsheets implements MemberRepository {
     }
 
     @Override
-    public List<Member> findAllMembers() throws IOException, GeneralSecurityException {
+    public List<MemberModel> findAllMembers() throws IOException, GeneralSecurityException {
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         final String range = "A2:F";
 
@@ -67,30 +67,30 @@ public class Spreadsheets implements MemberRepository {
                 .get(spreadsheetId, range)
                 .execute();
         List<List<Object>> values = response.getValues();
-        List<Member> members = new LinkedList<>();
+        List<MemberModel> memberModels = new LinkedList<>();
 
         if (values == null || values.isEmpty()) {
             System.out.println("No data found.");
         } else {
             for (List row : values) {
                 // Print columns A and E, which correspond to indices 0 and 4.
-                members.add(new Member(Integer.parseInt((String)row.get(0)), (String)row.get(1), (String)row.get(2),
+                memberModels.add(new MemberModel(Integer.parseInt((String)row.get(0)), (String)row.get(1), (String)row.get(2),
                         (String)row.get(3), (String)row.get(4), (String)row.get(5)));
             }
         }
 
-        return members;
+        return memberModels;
     }
 
     @Override
-    public boolean writeMembers(List<Member> members) throws IOException, GeneralSecurityException {
+    public boolean writeMembers(List<MemberModel> memberModels) throws IOException, GeneralSecurityException {
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         final String range = "A2:F";
 
         List<List<Object>> value = Arrays.asList();
-        for (Member member : members) {
+        for (MemberModel memberModel : memberModels) {
             value.add(Arrays.asList(
-                    member.cardinalNumber, member.name, member.position, member.phone, member.email, member.attendingState
+                    memberModel.cardinalNumber, memberModel.name, memberModel.position, memberModel.phone, memberModel.email, memberModel.attendingState
             ));
         }
 
@@ -109,13 +109,13 @@ public class Spreadsheets implements MemberRepository {
     }
 
     @Override
-    public List<Member> findMemberByCardinalNumber(int cardinalNumber) throws IOException, GeneralSecurityException {
-        List<Member> members = this.findAllMembers();
-        List<Member> result = new LinkedList<>();
+    public List<MemberModel> findMemberByCardinalNumber(int cardinalNumber) throws IOException, GeneralSecurityException {
+        List<MemberModel> memberModels = this.findAllMembers();
+        List<MemberModel> result = new LinkedList<>();
 
-        for (Member member : members) {
-            if (member.cardinalNumber == cardinalNumber) {
-                result.add(member);
+        for (MemberModel memberModel : memberModels) {
+            if (memberModel.cardinalNumber == cardinalNumber) {
+                result.add(memberModel);
             }
         }
 
@@ -123,27 +123,27 @@ public class Spreadsheets implements MemberRepository {
     }
 
     @Override
-    public List<Member> findMemberByName(String name) {
+    public List<MemberModel> findMemberByName(String name) {
         return null;
     }
 
     @Override
-    public List<Member> findMemberByPosition(String position) {
+    public List<MemberModel> findMemberByPosition(String position) {
         return null;
     }
 
     @Override
-    public List<Member> findMemberByPhone(String phone) {
+    public List<MemberModel> findMemberByPhone(String phone) {
         return null;
     }
 
     @Override
-    public List<Member> findMemberByEmail(String email) {
+    public List<MemberModel> findMemberByEmail(String email) {
         return null;
     }
 
     @Override
-    public List<Member> findMemberByAttendingState(String attendingState) {
+    public List<MemberModel> findMemberByAttendingState(String attendingState) {
         return null;
     }
 }
