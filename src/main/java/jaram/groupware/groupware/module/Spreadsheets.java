@@ -93,19 +93,98 @@ public class Spreadsheets implements MemberRepository {
         jedis.set("members",json);
         jedis.close();
     }
+
+    @Override
+    public List<MemberModel> findMemberByCardinalNumber(CardinalNumber cardinalNumber) throws IOException, GeneralSecurityException {
+        List<MemberModel> memberModels = getMembers();
+        List<MemberModel> result = new LinkedList<>();
+
+        for (MemberModel memberModel : memberModels) {
+            if (memberModel.cardinalNumber == cardinalNumber.getCardinalNumber()) {
+                result.add(memberModel);
             }
         }
 
-        return memberModels;
+        return result;
     }
 
     @Override
-    public boolean writeMembers(List<MemberModel> memberModels) throws IOException, GeneralSecurityException {
+    public List<MemberModel> findMemberByName(Name name) {
+        List<MemberModel> memberModels = getMembers();
+        List<MemberModel> result = new LinkedList<>();
+
+        for (MemberModel memberModel : memberModels) {
+            if (memberModel.name == name.getName()) {
+                result.add(memberModel);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<MemberModel> findMemberByPosition(Position position) {
+        List<MemberModel> memberModels = getMembers();
+        List<MemberModel> result = new LinkedList<>();
+
+        for (MemberModel memberModel : memberModels) {
+            if (memberModel.position == position.getposition()) {
+                result.add(memberModel);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<MemberModel> findMemberByPhone(Phone phone) {
+        List<MemberModel> memberModels = getMembers();
+        List<MemberModel> result = new LinkedList<>();
+
+        for (MemberModel memberModel : memberModels) {
+            if (memberModel.phone == phone.getPhone()) {
+                result.add(memberModel);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<MemberModel> findMemberByEmail(Email email) {
+        List<MemberModel> memberModels = getMembers();
+        List<MemberModel> result = new LinkedList<>();
+
+        for (MemberModel memberModel : memberModels) {
+            if (memberModel.email == email.getEmail()) {
+                result.add(memberModel);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<MemberModel> findMemberByAttendingState(AttendingState attendingState) {
+        List<MemberModel> memberModels = getMembers();
+        List<MemberModel> result = new LinkedList<>();
+
+        for (MemberModel memberModel : memberModels) {
+            if (memberModel.attendingState == attendingState.getAttendingState()) {
+                result.add(memberModel);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public boolean writeMembers() throws IOException, GeneralSecurityException {
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         final String range = "A2:F";
 
         List<List<Object>> value = Arrays.asList();
-        for (MemberModel memberModel : memberModels) {
+        for (MemberModel memberModel : getMembers()) {
             value.add(Arrays.asList(
                     memberModel.cardinalNumber, memberModel.name, memberModel.position, memberModel.phone, memberModel.email, memberModel.attendingState
             ));
@@ -126,12 +205,22 @@ public class Spreadsheets implements MemberRepository {
     }
 
     @Override
-    public List<MemberModel> findMemberByCardinalNumber(int cardinalNumber) throws IOException, GeneralSecurityException {
-        List<MemberModel> memberModels = this.findAllMembers();
+    public boolean checkIntegrity(Email email) {
+        return false;
+    }
+
+    @Override
+    public List<MemberModel> addMember(MemberModel newMemberModel) {
+        return null;
+    }
+
+    @Override
+    public List<MemberModel> findMemberByCardinalNumberAndName(CardinalNumber cardinalNumber, Name name) {
+        List<MemberModel> memberModels = getMembers();
         List<MemberModel> result = new LinkedList<>();
 
         for (MemberModel memberModel : memberModels) {
-            if (memberModel.cardinalNumber == cardinalNumber) {
+            if (memberModel.cardinalNumber == cardinalNumber.getCardinalNumber() && memberModel.name == name.getName()) {
                 result.add(memberModel);
             }
         }
@@ -140,27 +229,7 @@ public class Spreadsheets implements MemberRepository {
     }
 
     @Override
-    public List<MemberModel> findMemberByName(String name) {
-        return null;
-    }
-
-    @Override
-    public List<MemberModel> findMemberByPosition(String position) {
-        return null;
-    }
-
-    @Override
-    public List<MemberModel> findMemberByPhone(String phone) {
-        return null;
-    }
-
-    @Override
-    public List<MemberModel> findMemberByEmail(String email) {
-        return null;
-    }
-
-    @Override
-    public List<MemberModel> findMemberByAttendingState(String attendingState) {
+    public List<MemberModel> updateMember(CardinalNumber cardinalNumber, Name name, Position position, Phone phone, Email email, AttendingState attendingState) {
         return null;
     }
 }
