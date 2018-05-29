@@ -14,9 +14,16 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import jaram.groupware.groupware.model.MemberModel;
+import jaram.groupware.groupware.model.value.*;
 import jaram.groupware.groupware.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,11 +34,10 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+@Component
 public class Spreadsheets implements MemberRepository {
-    public Spreadsheets(){}
-
-    @Autowired
-    MemberModel memberModel;
+    public Spreadsheets() {
+    }
 
     private static final String APPLICATION_NAME = "jaram_groupware";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
@@ -55,6 +61,12 @@ public class Spreadsheets implements MemberRepository {
         return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("hyu.cse.jaram@gmail.com");
     }
 
+    private static List<MemberModel> getMembers(){
+        Jedis jedis = new Jedis("localhost", 6379);
+        Gson gson = new Gson();
+        return gson.fromJson(jedis.get("members"), new TypeToken<List<MemberModel>>(){}.getType());
+    }
+
     @Override
     public List<MemberModel> findAllMembers() throws IOException, GeneralSecurityException {
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
@@ -71,11 +83,16 @@ public class Spreadsheets implements MemberRepository {
 
         if (values == null || values.isEmpty()) {
             System.out.println("No data found.");
-        } else {
-            for (List row : values) {
-                // Print columns A and E, which correspond to indices 0 and 4.
-                memberModels.add(new MemberModel(Integer.parseInt((String)row.get(0)), (String)row.get(1), (String)row.get(2),
-                        (String)row.get(3), (String)row.get(4), (String)row.get(5)));
+        }
+
+        Jedis jedis = new Jedis("localhost", 6379);
+        Gson gson = new Gson();
+        List<MemberModel> members = gson.fromJson(jedis.get("members"), new TypeToken<List<MemberModel>>(){}.getType());
+
+        String json = gson.toJson(values);
+        jedis.set("members",json);
+        jedis.close();
+    }
             }
         }
 
