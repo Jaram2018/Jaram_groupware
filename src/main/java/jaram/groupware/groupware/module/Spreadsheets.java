@@ -16,13 +16,12 @@ import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import jaram.groupware.groupware.model.MemberModel;
 import jaram.groupware.groupware.model.value.*;
+import jaram.groupware.groupware.persistent.Member;
 import jaram.groupware.groupware.repository.MemberRepository;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
 
-import javax.transaction.Transactional;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -47,7 +46,7 @@ public class Spreadsheets implements MemberRepository {
 
     private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
         // Load client secrets.
-        InputStream in = MemberModel.class.getResourceAsStream(CLIENT_SECRET_DIR);
+        InputStream in = Member.class.getResourceAsStream(CLIENT_SECRET_DIR);
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
 
         // Build flow and trigger user authorization request.
@@ -59,15 +58,20 @@ public class Spreadsheets implements MemberRepository {
         return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("hyu.cse.jaram@gmail.com");
     }
 
-    private static List<MemberModel> getMembers() {
+    @Override
+    public List<Member> findAllMembers() throws IOException, GeneralSecurityException {
         Jedis jedis = new Jedis("localhost", 6379);
         Gson gson = new Gson();
-        return gson.fromJson(jedis.get("members"), new TypeToken<List<MemberModel>>() {
+
+        if (jedis.get("members") == null) {
+            this.getMembers();
+        }
+
+        return gson.fromJson(jedis.get("members"), new TypeToken<List<Member>>() {
         }.getType());
     }
 
-    @Override
-    public boolean findAllMembers() throws IOException, GeneralSecurityException {
+    private boolean getMembers() throws IOException, GeneralSecurityException {
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         final String range = "A2:F";
 
@@ -88,9 +92,94 @@ public class Spreadsheets implements MemberRepository {
 
         String json = gson.toJson(values);
         jedis.set("members", json);
+        jedis.expire("members", 60 * 60 * 6);
         jedis.close();
 
         return true;
+    }
+
+    @Override
+    public List<Member> findMemberByCardinalNumber(CardinalNumber cardinalNumber) throws IOException, GeneralSecurityException {
+        List<Member> members = findAllMembers();
+        List<Member> result = new LinkedList<>();
+
+        for (Member member : members) {
+            if (member.getCardinalNumber() == cardinalNumber.getCardinalNumber()) {
+                result.add(member);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<Member> findMemberByName(Name name) throws IOException, GeneralSecurityException {
+        List<Member> members = findAllMembers();
+        List<Member> result = new LinkedList<>();
+
+        for (Member member : members) {
+            if (member.getName().equals(name.getName())) {
+                result.add(member);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<Member> findMemberByPosition(Position position) throws IOException, GeneralSecurityException {
+        List<Member> members = findAllMembers();
+        List<Member> result = new LinkedList<>();
+
+        for (Member member : members) {
+            if (member.getPosition().equals(position.getposition())) {
+                result.add(member);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<Member> findMemberByPhone(Phone phone) throws IOException, GeneralSecurityException {
+        List<Member> members = findAllMembers();
+        List<Member> result = new LinkedList<>();
+
+        for (Member member : members) {
+            if (member.getPhone().equals(phone.getPhone())) {
+                result.add(member);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<Member> findMemberByEmail(Email email) throws IOException, GeneralSecurityException {
+        List<Member> members = findAllMembers();
+        List<Member> result = new LinkedList<>();
+
+        for (Member member : members) {
+            if (member.getEmail().equals(email.getEmail())) {
+                result.add(member);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<Member> findMemberByAttendingState(AttendingState attendingState) throws IOException, GeneralSecurityException {
+        List<Member> members = findAllMembers();
+        List<Member> result = new LinkedList<>();
+
+        for (Member member : members) {
+            if (member.getAttendingState().equals(attendingState.getAttendingState())) {
+                result.add(member);
+            }
+        }
+
+        return result;
     }
 
     @Override
@@ -99,9 +188,9 @@ public class Spreadsheets implements MemberRepository {
         final String range = "A2:F";
 
         List<List<Object>> value = Arrays.asList();
-        for (MemberModel memberModel : getMembers()) {
+        for (Member member : findAllMembers()) {
             value.add(Arrays.asList(
-                    memberModel.cardinalNumber, memberModel.name, memberModel.position, memberModel.phone, memberModel.email, memberModel.attendingState
+                    member.getCardinalNumber(), member.getName(), member.getPosition(), member.getPhone(), member.getEmail(), member.getAttendingState()
             ));
         }
 
@@ -117,5 +206,67 @@ public class Spreadsheets implements MemberRepository {
         System.out.printf("%d cells updated.", result.getUpdatedCells());
 
         return true;
+    }
+
+    @Override
+    public boolean checkIntegrity(Email email) throws IOException, GeneralSecurityException {
+        List<Member> members = findMemberByEmail(email);
+
+        return members.size() <= 1;
+    }
+
+    @Override
+    public List<Member> addMember(Member member) {
+        return null;
+    }
+
+    @Override
+    public List<Member> findMemberByCardinalNumberAndName(CardinalNumber cardinalNumber, Name name) throws IOException, GeneralSecurityException {
+        List<Member> members = findAllMembers();
+        List<Member> result = new LinkedList<>();
+
+        for (Member member : members) {
+            if (member.getCardinalNumber() == cardinalNumber.getCardinalNumber() && member.getName().equals(name.getName())) {
+                result.add(member);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<Member> updateMember(Member targetMember, CardinalNumber cardinalNumber, Name name, Position position, Phone phone, Email email, AttendingState attendingState) throws IOException, GeneralSecurityException {
+        List<Member> members = findAllMembers();
+
+        for (Member member : members) {
+            if (member == targetMember) {
+                member = new Member(cardinalNumber, name, position, phone, email, attendingState);
+                break;
+            }
+        }
+
+        writeJsonToRedis(members);
+
+        return members;
+    }
+
+    private void writeJsonToRedis(List<Member> members) {
+        Jedis jedis = new Jedis("localhost", 6379);
+        Gson gson = new Gson();
+
+        String json = gson.toJson(members);
+        jedis.set("members", json);
+        jedis.expire("members", 60 * 60 * 6);
+    }
+
+    @Override
+    public List<Member> deleteMemebr(Member targetMember) throws IOException, GeneralSecurityException {
+        List<Member> members = findAllMembers();
+        members.remove(targetMember);
+
+        writeJsonToRedis(members);
+        writeMembers();
+
+        return members;
     }
 }

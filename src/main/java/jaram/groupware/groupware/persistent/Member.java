@@ -1,0 +1,58 @@
+package jaram.groupware.groupware.persistent;
+
+import jaram.groupware.groupware.model.value.*;
+
+public class Member {
+    private CardinalNumber cardinalNumber;
+    private Name name;
+    private Position position;
+    private Phone phone;
+    private Email email;
+    private AttendingState attendingState;
+
+    public Member() {
+
+    }
+
+    public Member(CardinalNumber cardinalNumber, Name name, Position position, Phone phone, Email email, AttendingState attendingState){
+        this.cardinalNumber = cardinalNumber;
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
+        this.position = position;
+        this.attendingState = attendingState;
+    }
+
+    public Member(CardinalNumber cardinalNumber, Name name, Phone phone, Email email){
+        this.cardinalNumber = cardinalNumber;
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
+        this.position = new Position("수습");
+        this.attendingState = new AttendingState("재학");
+    }
+
+    public int getCardinalNumber() {
+        return cardinalNumber.getCardinalNumber();
+    }
+
+    public String getName() {
+        return name.getName();
+    }
+
+    public String getPosition() {
+        return position.getposition();
+    }
+
+    public String getPhone() {
+        return phone.getPhone();
+    }
+
+    public String getEmail() {
+        return email.getEmail();
+    }
+
+    public String getAttendingState() {
+        return attendingState.getAttendingState();
+    }
+}
