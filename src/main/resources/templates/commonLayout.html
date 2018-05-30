@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" >
+
+<head>
+    <title layout:title-pattern="$CONTENT_TITLE :: $DECORATOR_TITLE">Jaram</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" type="text/css" href="css/commonStyle.css"/>
+</head>
+
+
+<body>
+<div id="wrapper">
+    <div id="main_menu">
+        <h1>JARAM</h1>
+        <ul>
+            <li><a href="http://localhost:8080/">회원관리</a></li>
+            <!--나중에 account-events로 변경-->
+            <li><a href="http://localhost:8080/account-event">회계관리</a></li>
+        </ul>
+    </div>
+    <div id="main_contents" layout:fragment="content">
+        <p>main_contents</p>
+    </div>
+</div>
+
+
+</body>
+</html>
