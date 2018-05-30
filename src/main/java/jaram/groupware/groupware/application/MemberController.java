@@ -21,6 +21,6 @@ public class MemberController {
 
         model.put("members", members);
 
-        return "lookupMembers";
+        return "member/list";
     }
 }
