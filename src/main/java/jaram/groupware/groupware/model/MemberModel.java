@@ -19,20 +19,23 @@ public class MemberModel {
     public String position;
     public String phone;
     public String email;
-    public Boolean isAttending;
+    public String isAttending;
 
-    public MemberModel(int cardinalNumber, String name, String email){
+    public MemberModel(int cardinalNumber, String name, String position, String phone, String email, String isAttending){
         this.cardinalNumber = cardinalNumber;
         this.name = name;
+        this.position = position;
+        this.phone = phone;
         this.email = email;
+        this.isAttending = isAttending;
     }
 
 
     public static List<MemberModel> getMembers(){
         List<MemberModel> members = new LinkedList<>();
-        members.add(new MemberModel(31,"남현실","hsilnam3"));
-        members.add(new MemberModel(32,"남현실","hsilnam2"));
-        members.add(new MemberModel(33,"남현실","hsilnam1"));
+        members.add(new MemberModel(30,"오용택", "OB", "010-1234-5678","ka123ak@gamil.com","졸업"));
+        members.add(new MemberModel(31,"남현실","정회원","010-9012-3456", "hsilnam3@gmail.com","휴학생"));
+        members.add(new MemberModel(31,"박진오","준OB", "010-7890-1234", "pjessesso@gmail.com", "재학"));
 
         return members;
     }
