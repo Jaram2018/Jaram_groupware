@@ -19,12 +19,10 @@ import com.google.gson.reflect.TypeToken;
 import jaram.groupware.groupware.model.MemberModel;
 import jaram.groupware.groupware.model.value.*;
 import jaram.groupware.groupware.repository.MemberRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -61,14 +59,15 @@ public class Spreadsheets implements MemberRepository {
         return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("hyu.cse.jaram@gmail.com");
     }
 
-    private static List<MemberModel> getMembers(){
+    private static List<MemberModel> getMembers() {
         Jedis jedis = new Jedis("localhost", 6379);
         Gson gson = new Gson();
-        return gson.fromJson(jedis.get("members"), new TypeToken<List<MemberModel>>(){}.getType());
+        return gson.fromJson(jedis.get("members"), new TypeToken<List<MemberModel>>() {
+        }.getType());
     }
 
     @Override
-    public List<MemberModel> findAllMembers() throws IOException, GeneralSecurityException {
+    public boolean findAllMembers() throws IOException, GeneralSecurityException {
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         final String range = "A2:F";
 
@@ -79,7 +78,6 @@ public class Spreadsheets implements MemberRepository {
                 .get(spreadsheetId, range)
                 .execute();
         List<List<Object>> values = response.getValues();
-        List<MemberModel> memberModels = new LinkedList<>();
 
         if (values == null || values.isEmpty()) {
             System.out.println("No data found.");
@@ -87,95 +85,12 @@ public class Spreadsheets implements MemberRepository {
 
         Jedis jedis = new Jedis("localhost", 6379);
         Gson gson = new Gson();
-        List<MemberModel> members = gson.fromJson(jedis.get("members"), new TypeToken<List<MemberModel>>(){}.getType());
 
         String json = gson.toJson(values);
-        jedis.set("members",json);
+        jedis.set("members", json);
         jedis.close();
-    }
 
-    @Override
-    public List<MemberModel> findMemberByCardinalNumber(CardinalNumber cardinalNumber) throws IOException, GeneralSecurityException {
-        List<MemberModel> memberModels = getMembers();
-        List<MemberModel> result = new LinkedList<>();
-
-        for (MemberModel memberModel : memberModels) {
-            if (memberModel.cardinalNumber == cardinalNumber.getCardinalNumber()) {
-                result.add(memberModel);
-            }
-        }
-
-        return result;
-    }
-
-    @Override
-    public List<MemberModel> findMemberByName(Name name) {
-        List<MemberModel> memberModels = getMembers();
-        List<MemberModel> result = new LinkedList<>();
-
-        for (MemberModel memberModel : memberModels) {
-            if (memberModel.name == name.getName()) {
-                result.add(memberModel);
-            }
-        }
-
-        return result;
-    }
-
-    @Override
-    public List<MemberModel> findMemberByPosition(Position position) {
-        List<MemberModel> memberModels = getMembers();
-        List<MemberModel> result = new LinkedList<>();
-
-        for (MemberModel memberModel : memberModels) {
-            if (memberModel.position == position.getposition()) {
-                result.add(memberModel);
-            }
-        }
-
-        return result;
-    }
-
-    @Override
-    public List<MemberModel> findMemberByPhone(Phone phone) {
-        List<MemberModel> memberModels = getMembers();
-        List<MemberModel> result = new LinkedList<>();
-
-        for (MemberModel memberModel : memberModels) {
-            if (memberModel.phone == phone.getPhone()) {
-                result.add(memberModel);
-            }
-        }
-
-        return result;
-    }
-
-    @Override
-    public List<MemberModel> findMemberByEmail(Email email) {
-        List<MemberModel> memberModels = getMembers();
-        List<MemberModel> result = new LinkedList<>();
-
-        for (MemberModel memberModel : memberModels) {
-            if (memberModel.email == email.getEmail()) {
-                result.add(memberModel);
-            }
-        }
-
-        return result;
-    }
-
-    @Override
-    public List<MemberModel> findMemberByAttendingState(AttendingState attendingState) {
-        List<MemberModel> memberModels = getMembers();
-        List<MemberModel> result = new LinkedList<>();
-
-        for (MemberModel memberModel : memberModels) {
-            if (memberModel.attendingState == attendingState.getAttendingState()) {
-                result.add(memberModel);
-            }
-        }
-
-        return result;
+        return true;
     }
 
     @Override
@@ -202,34 +117,5 @@ public class Spreadsheets implements MemberRepository {
         System.out.printf("%d cells updated.", result.getUpdatedCells());
 
         return true;
-    }
-
-    @Override
-    public boolean checkIntegrity(Email email) {
-        return false;
-    }
-
-    @Override
-    public List<MemberModel> addMember(MemberModel newMemberModel) {
-        return null;
-    }
-
-    @Override
-    public List<MemberModel> findMemberByCardinalNumberAndName(CardinalNumber cardinalNumber, Name name) {
-        List<MemberModel> memberModels = getMembers();
-        List<MemberModel> result = new LinkedList<>();
-
-        for (MemberModel memberModel : memberModels) {
-            if (memberModel.cardinalNumber == cardinalNumber.getCardinalNumber() && memberModel.name == name.getName()) {
-                result.add(memberModel);
-            }
-        }
-
-        return result;
-    }
-
-    @Override
-    public List<MemberModel> updateMember(CardinalNumber cardinalNumber, Name name, Position position, Phone phone, Email email, AttendingState attendingState) {
-        return null;
     }
 }
