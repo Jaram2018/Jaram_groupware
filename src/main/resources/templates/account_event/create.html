@@ -1,0 +1,55 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="commonLayout">
+
+<head>
+    <title>createAccountEvent</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <form th:action="@{/account-event}" method="post">
+        <p>name: <input type="text" name ="name" th:value="${name}"/></p>
+        <span th:text="${nameNullError}"> </span>
+        <p>amountPerMan: <input type="text" name="amountPerMan" th:value="${amountPerMan}"/></p>
+        <span th:text="${amountPerManNullError}"> </span>
+        <span th:text="${amountPerManTypeError}"></span>
+        <p>totalAmount: <input type="text" name="totalAmount" th:value="${totalAmount}"/></p>
+        <span th:text="${totalAmountNullError}"> </span>
+        <span th:text="${totalAmountTypeError}"></span>
+        <p>startDate: <input type="date" name="startDate" th:value="${startDate}"></p>
+        <span th:text="${startDateNullError}"> </span>
+        <p>endDate: <input type="date" name="endDate" th:value="${endDate}"></p>
+        <span th:text="${endDateNullError}"> </span>
+        <span th:text="${endDateIsBeforeStartDateError}"></span>
+        <p th:each="member : ${members}">
+            <input type="checkbox" name="collectedMember" th:value="${member.email}"  th:checked="${#lists.contains(memberList, member.email)}"/>
+            <span th:text="${member.email} +' '+ ${member.name}"> </span>
+        </p>
+
+
+
+        <p><span th:text="${memberNullError}"> </span></p>
+        <p><span th:text="${atLeastOneNullError}"> </span></p>
+
+
+        <input type="submit" value="전송">
+        <div class="alert">
+            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+            <strong>Danger!</strong> Indicates a dangerous or potentially negative action.
+        </div>
+        <div th:switch="${message}">
+            <div th:case="'Success'" class="alert alert-success">
+                <strong>Success!</strong> Operation performed successfully.
+            </div>
+            <div th:case="'Failed'" class="alert alert-danger">
+                <strong>Failure!</strong> Operation failed. Please try again
+            </div>
+
+        </div>
+        <div th:if="${atLeastOneNullError}" th:text="${atLeastOneNullError}" th:class="${'alert ' + alertClass}"/>
+    </form>
+</div>
+</body>
+</html>
