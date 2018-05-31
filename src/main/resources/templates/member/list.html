@@ -1,0 +1,37 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="member/base">
+
+
+<head>
+</head>
+<body>
+
+<div layout:fragment="list">
+    <table>
+        <tr>
+            <th></th>
+            <th>기수</th>
+            <th>이름</th>
+            <th>직책</th>
+            <th>전화번호</th>
+            <th>이메일</th>
+            <th>재학여부</th>
+        </tr>
+        <th:block th:each="member : ${members}">
+            <tr>
+                <th/><input type="checkbox" name="collectedMember" th:value="${member.email}" />
+                <th th:text="${member.cardinalNumber}"/>
+                <th th:text="${member.name}"/>
+                <th th:text="${member.position}"/>
+                <th th:text="${member.phone}"/>
+                <th th:text="${member.email}"/>
+                <th th:text="${member.isAttending}"/>
+            </tr>
+        </th:block>
+    </table>
+</div>
+
+</body>
+</html>

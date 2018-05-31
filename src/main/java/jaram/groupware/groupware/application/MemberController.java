@@ -1,7 +1,7 @@
 package jaram.groupware.groupware.application;
 
-import jaram.groupware.groupware.model.MemberModel;
 import jaram.groupware.groupware.model.value.*;
+import jaram.groupware.groupware.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,16 +21,16 @@ import java.util.Map;
 @Controller
 public class MemberController {
     @Autowired
-    private MemberModel memberModel;
+    private MemberRepository memberRepository;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String lookupMembers(Map<String, Object> model) throws IOException, GeneralSecurityException {
 
-        List<MemberModel> members = memberModel.getMembers();
+        List<MemberRepository> members = memberRepository.getMembers();
 
         model.put("members", members);
 
-        return "lookupMembers";
+        return "member/list";
     }
 
     @RequestMapping(path = "/members", method = RequestMethod.POST)
@@ -42,24 +42,24 @@ public class MemberController {
         String email = request.getParameter("email");
         String attendingState = request.getParameter("attendingState");
 
-        List<MemberModel> memberModels;
+        List<MemberRepository> memberRepositorys;
         if (attendingState != null) {
-            memberModels = memberModel.searchMembers(new AttendingState(attendingState));
+            memberRepositorys = memberRepository.searchMembers(new AttendingState(attendingState));
         } else if (cardinalNumber != null) {
-            memberModels = memberModel.searchMembers(new CardinalNumber(Integer.parseInt(cardinalNumber)));
+            memberRepositorys = memberRepository.searchMembers(new CardinalNumber(Integer.parseInt(cardinalNumber)));
         } else if (email != null) {
-            memberModels = memberModel.searchMembers(new Email(email));
+            memberRepositorys = memberRepository.searchMembers(new Email(email));
         } else if (name != null) {
-            memberModels = memberModel.searchMembers(new Name(name));
+            memberRepositorys = memberRepository.searchMembers(new Name(name));
         } else if (phone != null) {
-            memberModels = memberModel.searchMembers(new Phone(phone));
+            memberRepositorys = memberRepository.searchMembers(new Phone(phone));
         } else if (position != null) {
-            memberModels = memberModel.searchMembers(new Position(position));
+            memberRepositorys = memberRepository.searchMembers(new Position(position));
         } else {
-            memberModels = new LinkedList<>();
+            memberRepositorys = new LinkedList<>();
         }
 
-        model.put("members", memberModels);
+        model.put("members", memberRepositorys);
 
         return "searchMembers";
     }
@@ -72,17 +72,17 @@ public class MemberController {
         String email = request.getParameter("email");
 
         if (cardinalNumber == null || name == null || phone == null || email == null ||
-                !memberModel.checkIntegrity(email)) {
+                !memberRepository.checkIntegrity(email)) {
             model.put("isError", true);
 
             return "addMember";
         }
 
-        MemberModel newMemberModel = new MemberModel(Integer.parseInt(cardinalNumber), name, phone, email);
-        memberModel.addMember(newMemberModel);
-        List<MemberModel> memberModels = memberModel.getMembers();
+        MemberRepository newMemberRepository = new MemberRepository(Integer.parseInt(cardinalNumber), name, phone, email);
+        memberRepository.addMember(newMemberRepository);
+        List<MemberRepository> memberRepositorys = memberRepository.getMembers();
 
-        model.put("members", memberModels);
+        model.put("members", memberRepositorys);
 
         return "lookupMembers";
     }
@@ -100,29 +100,29 @@ public class MemberController {
         String email = request.getParameter("email");
         String attendingState = request.getParameter("attendingState");
 
-        List<MemberModel> memberModel;
+        List<MemberRepository> memberRepository;
         if (searchEmail != null) {
-            memberModel = this.memberModel.searchMembers(new Email(searchEmail));
+            memberRepository = this.memberRepository.searchMembers(new Email(searchEmail));
         } else if (searchCardinalNumber != null && searchName != null) {
-            memberModel = this.memberModel.searchMembers(new CardinalNumber(Integer.parseInt(cardinalNumber)), new Name(searchName));
+            memberRepository = this.memberRepository.searchMembers(new CardinalNumber(Integer.parseInt(cardinalNumber)), new Name(searchName));
         } else {
-            List<MemberModel> memberModels = this.memberModel.getMembers();
-            model.put("members", memberModels);
+            List<MemberRepository> memberRepositorys = this.memberRepository.getMembers();
+            model.put("members", memberRepositorys);
 
             return "lookupMembers";
         }
 
         if (cardinalNumber.equals("") || name.equals("") || position.equals("") || phone.equals("")
-                || email.equals("") || attendingState.equals("") || memberModel.size() > 1) {
+                || email.equals("") || attendingState.equals("") || memberRepository.size() > 1) {
             model.put("isError", true);
 
             return "updateMember";
         }
 
-        memberModel.updateMember(Integer.parseInt(cardinalNumber), name, position, phone, email, attendingState);
+        memberRepository.updateMember(Integer.parseInt(cardinalNumber), name, position, phone, email, attendingState);
 
-        List<MemberModel> memberModels = this.getMembers();
-        model.put("members", memberModels);
+        List<MemberRepository> memberRepositorys = this.getMembers();
+        model.put("members", memberRepositorys);
 
         return "lookupMembers";
     }

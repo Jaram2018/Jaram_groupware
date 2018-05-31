@@ -1,7 +1,5 @@
 package jaram.groupware.groupware.application;
 
-import jaram.groupware.groupware.model.AccountEventModel;
-import jaram.groupware.groupware.model.MemberModel;
 import jaram.groupware.groupware.persistent.AccountEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -31,7 +29,7 @@ public class AccountEventController {
     public String lookupAccountEvent(@PathVariable String id, Map<String, Object> model){
         //error page logic
         if(id == null || isStringLong(id) == false){
-            return "errorPage";
+            return "account_event/errorPage";
         }
 
         long idL = Long.parseLong(id);
@@ -41,13 +39,13 @@ public class AccountEventController {
         }
         model.put("accountEvent",accountEventWithId);
 
-        return "lookupAccountEvent";
+        return "account_event/lookup";
     }
 
     @RequestMapping(value = "/account-event", method = RequestMethod.GET)
     public String getAddAccountEvent(Map<String, Object> model){
         model.put("members", MemberModel.getMembers());
-        return "createAccountEvent";
+        return "account_event/create";
     }
 
 

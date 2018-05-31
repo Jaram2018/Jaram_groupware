@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="commonLayout">
+
+
+<head>
+    <title>Members</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="css/member/baseStyle.css"/>
+</head>
+<body>
+
+
+<div layout:fragment="content">
+    <h1>회원관리</h1>
+    <div id="buttons-container">
+        <button class="change-list-show">전체</button>
+        <button class="change-list-show">재학생</button>
+        <button class="change-list-show">졸업생</button>
+        <button class="change-list-show">휴학생</button>
+        <button class="change-members">삭제</button>
+        <button class="change-members">추가</button>
+
+    </div>
+    <div id="search-container">
+        <select>
+            <option value="cardinalNumber">기수</option>
+            <option value="name">이름</option>
+            <option value="position">직책</option>
+            <option value="phone">전화번호</option>
+            <option value="email">이메일</option>
+        </select>
+        <div>
+            <input type="search" id="search_member" name="q">
+            <button>Search</button>
+        </div>
+    </div>
+    <div id="list-container" layout:fragment="list">
+        <p>this is list</p>
+        <!--<th:block layout:fragment="list">-->
+
+        <!--</th:block>-->
+    </div>
+</div>
+
+</body>
+</html>

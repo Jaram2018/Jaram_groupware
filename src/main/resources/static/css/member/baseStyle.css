@@ -1,0 +1,38 @@
+.change-list-show{
+    padding: 10px;
+    float: left;
+}
+.change-members{
+    margin-left: 3px;
+    padding:10px;
+    float: right;
+}
+#buttons-container{
+    border: 1px solid black;
+    padding: 3px;
+    height: auto;
+    overflow: hidden;
+}
+
+
+#search-container{
+    border: 1px solid black;
+    padding: 3px;
+    height: auto;
+    overflow: hidden;
+}
+
+#search-container select{
+    float: left;
+    margin-right: 3px;
+}
+
+#search-container div{
+    /*float: left;*/
+    margin: auto;
+}
+
+#search-container div input{
+    width: 70%;
+}
+
