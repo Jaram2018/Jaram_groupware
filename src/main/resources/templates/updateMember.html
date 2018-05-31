@@ -1,21 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="layout">
 <link rel="stylesheet" type="text/css" href="style.css" />
 <head>
     <meta charset="UTF-8">
     <title>회원 수정</title>
 </head>
 <body>
-<div class="sidenav">
-    <a href="/members">회원관리</a>
-    <a href="/accountEvents">회계관리</a>
-</div>
-
-<div class="main">
+<div class="main" layout:fragment="content">
     <form action="/member" method="post">
-    <div class="container">
-            <h1>회원수정</h1>
-            <p>모든 칸을 기입하고 수정 버튼을 눌러주세요.</p>
+        <div class="container">
+            <p>회원정보를 모두 입력하고 수정을 눌러주세요.</p>
             <hr>
 
             <label for="cardinalNumber"><b>기수</b></label><br>

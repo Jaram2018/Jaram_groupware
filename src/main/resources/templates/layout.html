@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<link rel="stylesheet" type="text/css" href="style.css" />
+<head>
+    <meta charset="UTF-8">
+    <title layout:title-pattern="$CONTENT_TITLE :: $DECORATOR_TITLE">Jaram</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+
+<div id="wrapper">
+    <div class="sidenav">
+        <a href="/members">회원관리</a>
+        <a href="/accountEvents">회계관리</a>
+    </div>
+    <div class="title">
+        <h1>회원관리</h1>
+    </div>
+    <div class="main" layout:fragment="content">
+    </div>
+</div>
+</body>
+</html>
