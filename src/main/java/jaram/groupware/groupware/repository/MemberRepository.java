@@ -1,37 +1,34 @@
 package jaram.groupware.groupware.repository;
 
-import jaram.groupware.groupware.model.MemberModel;
 import jaram.groupware.groupware.model.value.*;
+import jaram.groupware.groupware.persistent.Member;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
-import java.lang.reflect.Member;
 import java.security.GeneralSecurityException;
 import java.util.List;
 
 @Repository
 public interface MemberRepository {
-    List<MemberModel> findAllMembers() throws IOException, GeneralSecurityException;
+    List<Member> findAllMembers() throws IOException, GeneralSecurityException;
 
-    List<MemberModel> findMemberByCardinalNumber(CardinalNumber cardinalNumber) throws IOException, GeneralSecurityException;
+    List<Member> findMemberByCardinalNumber(CardinalNumber cardinalNumber) throws IOException, GeneralSecurityException;
 
-    List<MemberModel> findMemberByName(Name name);
+    List<Member> findMemberByName(Name name) throws IOException, GeneralSecurityException;
 
-    List<MemberModel> findMemberByPosition(Position position);
+    List<Member> findMemberByPosition(Position position) throws IOException, GeneralSecurityException;
 
-    List<MemberModel> findMemberByPhone(Phone phone);
+    List<Member> findMemberByPhone(Phone phone) throws IOException, GeneralSecurityException;
 
-    List<MemberModel> findMemberByEmail(Email email);
+    List<Member> findMemberByEmail(Email email) throws IOException, GeneralSecurityException;
 
-    List<MemberModel> findMemberByAttendingState(AttendingState attendingState);
+    List<Member> findMemberByAttendingState(AttendingState attendingState) throws IOException, GeneralSecurityException;
 
-    boolean writeMembers(List<MemberModel> memberModels) throws IOException, GeneralSecurityException;
+    List<Member> addMember(Member newMember) throws IOException, GeneralSecurityException;
 
-    boolean checkIntegrity(Email email);
+    List<Member> findMemberByCardinalNumberAndName(CardinalNumber cardinalNumber, Name name) throws IOException, GeneralSecurityException;
 
-    List<MemberModel> addMember(MemberModel newMemberModel);
+    boolean updateMember(Member targetMember, CardinalNumber cardinalNumber, Name name, Position position, Phone phone, Email email, AttendingState attendingState) throws IOException, GeneralSecurityException;
 
-    List<MemberModel> findMemberByCardinalNumberAndName(CardinalNumber cardinalNumber, Name name);
-
-    List<MemberModel> updateMember(CardinalNumber cardinalNumber, Name name , Position position, Phone phone, Email email, AttendingState attendingState);
+    List<Member> deleteMemebr(Member targetMember) throws IOException, GeneralSecurityException;
 }
