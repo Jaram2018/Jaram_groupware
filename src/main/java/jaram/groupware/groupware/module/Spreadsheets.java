@@ -74,9 +74,7 @@ public class Spreadsheets implements MemberRepository {
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         final String range = "A2:F";
 
-        Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
-                .setApplicationName(APPLICATION_NAME)
-                .build();
+        Sheets service = getSheets(HTTP_TRANSPORT);
         ValueRange response = service.spreadsheets().values()
                 .get(spreadsheetId, range)
                 .execute();
@@ -207,6 +205,26 @@ public class Spreadsheets implements MemberRepository {
         List<List<Object>> value = new LinkedList<>();
         List<Member> members = findAllMembers();
 
+        createValue(value, members);
+
+        Sheets service = getSheets(HTTP_TRANSPORT);
+
+        ValueRange body = new ValueRange()
+                .setValues(value);
+        UpdateValuesResponse result = service.spreadsheets().values().update(spreadsheetId, range, body)
+                .setValueInputOption("RAW")
+                .execute();
+
+        return true;
+    }
+
+    private Sheets getSheets(NetHttpTransport HTTP_TRANSPORT) throws IOException {
+        return new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+                    .setApplicationName(APPLICATION_NAME)
+                    .build();
+    }
+
+    private void createValue(List<List<Object>> value, List<Member> members) {
         for (Member member : members) {
             value.add(Arrays.asList(
                     member.getCardinalNumber(), member.getName(), member.getPosition(), member.getPhone(), member.getEmail(), member.getAttendingState()
@@ -216,18 +234,6 @@ public class Spreadsheets implements MemberRepository {
         value.add(Arrays.asList(
                 "", "", "", "", "", ""
         ));
-
-        Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
-                .setApplicationName(APPLICATION_NAME)
-                .build();
-
-        ValueRange body = new ValueRange()
-                .setValues(value);
-        UpdateValuesResponse result = service.spreadsheets().values().update(spreadsheetId, range, body)
-                .setValueInputOption("RAW")
-                .execute();
-
-        return true;
     }
 
     private boolean checkIntegrity(Email email) throws IOException, GeneralSecurityException {
