@@ -7,6 +7,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import javax.servlet.http.HttpServletRequest;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,12 +21,12 @@ import java.util.Map;
 @Controller
 public class MemberController {
     @Autowired
-    MemberModel memberModel;
+    private MemberModel memberModel;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public String lookupMembers(Map<String, Object> model) {
+    public String lookupMembers(Map<String, Object> model) throws IOException, GeneralSecurityException {
 
-        List<MemberModel> members = MemberModel.getMembers();
+        List<MemberModel> members = memberModel.getMembers();
 
         model.put("members", members);
 
@@ -63,7 +65,7 @@ public class MemberController {
     }
 
     @RequestMapping(path = "/member", method = RequestMethod.POST)
-    public String addMember(Map<String, Object> model, HttpServletRequest request) {
+    public String addMember(Map<String, Object> model, HttpServletRequest request) throws IOException, GeneralSecurityException {
         String cardinalNumber = request.getParameter("cardinalNumber");
         String name = request.getParameter("name");
         String phone = request.getParameter("phone");

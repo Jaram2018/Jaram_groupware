@@ -1,11 +1,10 @@
 package jaram.groupware.groupware.model;
-
-import jaram.groupware.groupware.persistent.AccountEventHistory;
-import jaram.groupware.groupware.repository.AccountEventRepository;
+import jaram.groupware.groupware.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.LinkedList;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.List;
 
 /**
@@ -22,26 +21,33 @@ public class MemberModel {
     public String email;
     public String attendingState;
 
-    MemberModel(){}
+    @Autowired
+    private MemberRepository memberRepository;
+
+    public MemberModel() {
+
+    }
+
+    public MemberModel(int cardinalNumber, String name, String position, String phone, String email, String attendingState){
+        this.cardinalNumber = cardinalNumber;
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
+        this.position = position;
+        this.attendingState = attendingState;
+    }
 
     public MemberModel(int cardinalNumber, String name, String phone, String email){
         this.cardinalNumber = cardinalNumber;
         this.name = name;
-        this.phone = phone;
         this.email = email;
-        this.position = "준회원";
+        this.phone = phone;
+        this.position = "수습";
         this.attendingState = "재학";
     }
 
-    public MemberModel updateMember
-            (int cardinalNumber, String name, String position, String phone, String email, String attendingState){
-        this.cardinalNumber = cardinalNumber;
-        this.name = name;
-        this.position = position;
-        this.phone = phone;
-        this.email = email;
-        this.attendingState = attendingState;
-
-        return this;
+    public List<MemberModel> getMembers() throws IOException, GeneralSecurityException {
+        // Build a new authorized API client service.
+        return this.memberRepository.findAllMembers();
     }
 }

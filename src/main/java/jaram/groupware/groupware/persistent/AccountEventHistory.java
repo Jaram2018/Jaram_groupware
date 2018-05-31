@@ -26,10 +26,11 @@ public class AccountEventHistory {
     @NotNull
     private String email;
 
-    protected AccountEventHistory(){
+    protected AccountEventHistory() {
 
     }
-    protected AccountEventHistory(String email){
+
+    protected AccountEventHistory(String email) {
         this.isCollect = false;
         this.email = email;
     }

@@ -41,25 +41,26 @@ public class AccountEvent {
     private int totalAmount;
 
     @JoinColumn
-    @OneToMany(cascade=CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     private Set<AccountEventHistory> accountEventHistory;
 
-    public AccountEvent(){
+    public AccountEvent() {
 
     }
 
     //TODO:이렇게 하는 것이 옳은 것인가
-    public AccountEvent(String name, int amountPerMan, int totalAmount, Date startDate, Date endDate, String[] members){
+    public AccountEvent(String name, int amountPerMan, int totalAmount, Date startDate, Date endDate, String[] members) {
         this.name = name;
         this.amountPerMan = amountPerMan;
         this.totalAmount = totalAmount;
         this.startDate = startDate;
         this.endDate = endDate;
         this.accountEventHistory = new HashSet<AccountEventHistory>();
-        for(int i = 0 ; i < members.length ; i++){
+        for (int i = 0; i < members.length; i++) {
             accountEventHistory.add(new AccountEventHistory(members[i]));
         }
     }
+
     //immutable
     public long getId() {
         return id;
@@ -89,4 +90,3 @@ public class AccountEvent {
         return totalAmount;
     }
 }
-
