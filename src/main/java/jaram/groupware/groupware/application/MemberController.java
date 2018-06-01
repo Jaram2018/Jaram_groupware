@@ -27,7 +27,7 @@ public class MemberController {
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String lookupMembers(Map<String, Object> model) throws IOException, GeneralSecurityException {
 
-        List<MemberRepository> members = memberRepository.getMembers();
+        List<Member> members = memberRepository.findAllMembers();
 
         model.put("members", members);
 
@@ -39,18 +39,34 @@ public class MemberController {
         Map<String, String[]> filter = request.getParameterMap();
 
         List<Member> members = null;
-        if (filter.get("filter")[0].equals("cardinalNumber")) {
-            members = memberRepository.findMemberByCardinalNumber(new CardinalNumber(Integer.parseInt(filter.get("q")[0])));
-        } else if (filter.get("filter")[0].equals("name")) {
-            members = memberRepository.findMemberByName(new Name(filter.get("q")[0]));
-        } else if (filter.get("filter")[0].equals("position")) {
-            members = memberRepository.findMemberByPosition(Position.valueOf(filter.get("q")[0]));
-        } else if (filter.get("filter")[0].equals("phone")) {
-            members = memberRepository.findMemberByPhone(new Phone(filter.get("q")[0]));
-        } else if (filter.get("filter")[0].equals("email")) {
-            members = memberRepository.findMemberByEmail(new Email(filter.get("q")[0]));
-        } else if (filter.get("filter")[0].equals("attendingState")) {
-            members = memberRepository.findMemberByAttendingState(AttendingState.valueOf(filter.get("q")[0]));
+        switch (filter.get("filter")[0]) {
+            case "cardinalNumber":
+                try {
+                    members = memberRepository.findMemberByCardinalNumber(new CardinalNumber(Integer.parseInt(filter.get("q")[0])));
+                } catch (NumberFormatException ignored) {
+                }
+                break;
+            case "name":
+                members = memberRepository.findMemberByName(new Name(filter.get("q")[0]));
+                break;
+            case "position":
+                try {
+                    members = memberRepository.findMemberByPosition(Position.valueOf(filter.get("q")[0]));
+                } catch (IllegalArgumentException ignored) {
+                }
+                break;
+            case "phone":
+                members = memberRepository.findMemberByPhone(new Phone(filter.get("q")[0]));
+                break;
+            case "email":
+                members = memberRepository.findMemberByEmail(new Email(filter.get("q")[0]));
+                break;
+            case "attendingState":
+                try {
+                    members = memberRepository.findMemberByAttendingState(AttendingState.valueOf(filter.get("q")[0]));
+                } catch (IllegalArgumentException ignored) {
+                }
+                break;
         }
 
         model.put("members", members);
