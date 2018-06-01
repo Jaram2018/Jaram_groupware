@@ -325,7 +325,7 @@ public class Spreadsheets implements MemberRepository {
     }
 
     @Override
-    public List<Member> deleteMemebr(Member targetMember) throws IOException, GeneralSecurityException {
+    public List<Member> deleteMember(Member targetMember) throws IOException, GeneralSecurityException {
         List<Member> members = findAllMembers();
         for (Member member : members) {
             if (member.getEmail().equals(targetMember.getEmail())) {
