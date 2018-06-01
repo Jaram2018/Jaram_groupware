@@ -229,28 +229,58 @@ public class Spreadsheets implements MemberRepository {
     }
 
     @Override
-    public List<Member> addMember(Member member) throws IOException, GeneralSecurityException {
+    public boolean addMember(Member member) throws IOException, GeneralSecurityException {
         List<Member> members = findAllMembers();
+        if (!checkIntegrity(new Email(member.getEmail())))
+            return false;
+
         members.add(member);
+
+        Collections.sort(members);
 
         writeJsonToRedis(members);
         writeMembers();
 
-        return members;
+        return true;
     }
 
     @Override
-    public List<Member> findMemberByCardinalNumberAndName(CardinalNumber cardinalNumber, Name name) throws IOException, GeneralSecurityException {
+    public Member findOneMemberByEmail(Email email) throws IOException, GeneralSecurityException {
         List<Member> members = findAllMembers();
-        List<Member> result = new LinkedList<>();
 
         for (Member member : members) {
-            if (member.getCardinalNumber() == cardinalNumber.getCardinalNumber() && member.getName().equals(name.getName())) {
-                result.add(member);
+            if (member.getEmail().equals(email.getEmail())) {
+                return member;
             }
         }
 
-        return result;
+        return null;
+    }
+
+    @Override
+    public Member findOneMemberByPhone(Phone phone) throws IOException, GeneralSecurityException {
+        List<Member> members = findAllMembers();
+
+        for (Member member : members) {
+            if (member.getPhone().equals(phone.getPhone())) {
+                return member;
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public Member findOneMemberByCardinalNumberAndName(CardinalNumber cardinalNumber, Name name) throws IOException, GeneralSecurityException {
+        List<Member> members = findAllMembers();
+
+        for (Member member : members) {
+            if (member.getCardinalNumber() == cardinalNumber.getCardinalNumber() && member.getName().equals(name.getName())) {
+                return member;
+            }
+        }
+
+        return null;
     }
 
     @Override
@@ -262,11 +292,21 @@ public class Spreadsheets implements MemberRepository {
         }
 
         for (Member member : members) {
-            if (member == targetMember) {
-                member = new Member(cardinalNumber, name, position, phone, email, attendingState);
+            if (member.getEmail().equals(targetMember.getEmail())) {
+                member.updateMember(cardinalNumber, name, position, phone, email, attendingState);
+                break;
+            }
+            if (member.getPhone().equals(targetMember.getPhone())) {
+                member.updateMember(cardinalNumber, name, position, phone, email, attendingState);
+                break;
+            }
+            if (member.getCardinalNumber() == targetMember.getCardinalNumber() && member.getName().equals(targetMember.getName())) {
+                member.updateMember(cardinalNumber, name, position, phone, email, attendingState);
                 break;
             }
         }
+
+        Collections.sort(members);
 
         writeJsonToRedis(members);
         writeMembers();
@@ -289,6 +329,14 @@ public class Spreadsheets implements MemberRepository {
         List<Member> members = findAllMembers();
         for (Member member : members) {
             if (member.getEmail().equals(targetMember.getEmail())) {
+                members.remove(member);
+                break;
+            }
+            if (member.getPhone().equals(targetMember.getPhone())) {
+                members.remove(member);
+                break;
+            }
+            if (member.getCardinalNumber() == targetMember.getCardinalNumber() && member.getName().equals(targetMember.getName())) {
                 members.remove(member);
                 break;
             }
