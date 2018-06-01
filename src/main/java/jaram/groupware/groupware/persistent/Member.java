@@ -2,7 +2,7 @@ package jaram.groupware.groupware.persistent;
 
 import jaram.groupware.groupware.model.value.*;
 
-public class Member {
+public class Member implements Comparable<Member> {
     private CardinalNumber cardinalNumber;
     private Name name;
     private Position position;
@@ -30,6 +30,15 @@ public class Member {
         this.attendingState = AttendingState.재학;
     }
 
+    public void updateMember(CardinalNumber cardinalNumber, Name name, Position position, Phone phone, Email email, AttendingState attendingState) {
+        this.cardinalNumber = cardinalNumber;
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
+        this.position = position;
+        this.attendingState = attendingState;
+    }
+
     public int getCardinalNumber() {
         return cardinalNumber.getCardinalNumber();
     }
@@ -52,5 +61,22 @@ public class Member {
 
     public String getAttendingState() {
         return attendingState.toString();
+    }
+
+    @Override
+    public int compareTo(Member o) {
+        if (this.getCardinalNumber() > o.getCardinalNumber()) {
+            return 1;
+        } else if (this.getCardinalNumber() < o.getCardinalNumber()) {
+            return -1;
+        } else {
+            if (this.getName().compareTo(o.getName()) == 1) {
+                return 1;
+            } else if (this.getName().compareTo(o.getName()) == -1) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
     }
 }
