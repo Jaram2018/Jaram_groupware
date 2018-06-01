@@ -35,7 +35,7 @@ public class MemberController {
     }
 
     @RequestMapping(path = "/members", method = RequestMethod.POST)
-    public String searchMembers(Map<String, Object> model, HttpServletRequest request) {
+    public String searchMembers(Map<String, Object> model, HttpServletRequest request) throws IOException, GeneralSecurityException {
         String cardinalNumber = request.getParameter("cardinalNumber");
         String name = request.getParameter("name");
         String position = request.getParameter("position");
@@ -43,26 +43,24 @@ public class MemberController {
         String email = request.getParameter("email");
         String attendingState = request.getParameter("attendingState");
 
-        List<MemberRepository> memberRepositorys;
-        if (attendingState != null) {
-            memberRepositorys = memberRepository.searchMembers(new AttendingState(attendingState));
-        } else if (cardinalNumber != null) {
-            memberRepositorys = memberRepository.searchMembers(new CardinalNumber(Integer.parseInt(cardinalNumber)));
-        } else if (email != null) {
-            memberRepositorys = memberRepository.searchMembers(new Email(email));
+        List<Member> members = null;
+        if (cardinalNumber != null) {
+            members = memberRepository.findMemberByCardinalNumber(new CardinalNumber(Integer.parseInt(cardinalNumber)));
         } else if (name != null) {
-            memberRepositorys = memberRepository.searchMembers(new Name(name));
-        } else if (phone != null) {
-            memberRepositorys = memberRepository.searchMembers(new Phone(phone));
+            members = memberRepository.findMemberByName(new Name(name));
         } else if (position != null) {
-            memberRepositorys = memberRepository.searchMembers(new Position(position));
-        } else {
-            memberRepositorys = new LinkedList<>();
+            members = memberRepository.findMemberByPosition(new Position(position));
+        } else if (phone != null) {
+            members = memberRepository.findMemberByPhone(new Phone(phone));
+        } else if (email != null) {
+            members = memberRepository.findMemberByEmail(new Email(email));
+        } else if (attendingState != null) {
+            members = memberRepository.findMemberByAttendingState(new AttendingState(attendingState));
         }
 
-        model.put("members", memberRepositorys);
+        model.put("members", members);
 
-        return "searchMembers";
+        return "member/list";
     }
 
     @RequestMapping(path = "/member", method = RequestMethod.POST)
