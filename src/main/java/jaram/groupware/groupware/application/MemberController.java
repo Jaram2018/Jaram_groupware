@@ -1,7 +1,6 @@
 package jaram.groupware.groupware.application;
 
 import jaram.groupware.groupware.model.value.*;
-import jaram.groupware.groupware.persistent.Member;
 import jaram.groupware.groupware.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,7 +26,7 @@ public class MemberController {
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String lookupMembers(Map<String, Object> model) throws IOException, GeneralSecurityException {
 
-        List<Member> members = memberRepository.findAllMembers();
+        List<MemberRepository> members = memberRepository.getMembers();
 
         model.put("members", members);
 
@@ -35,7 +34,7 @@ public class MemberController {
     }
 
     @RequestMapping(path = "/members", method = RequestMethod.POST)
-    public String searchMembers(Map<String, Object> model, HttpServletRequest request) throws IOException, GeneralSecurityException {
+    public String searchMembers(Map<String, Object> model, HttpServletRequest request) {
         String cardinalNumber = request.getParameter("cardinalNumber");
         String name = request.getParameter("name");
         String position = request.getParameter("position");
@@ -43,24 +42,26 @@ public class MemberController {
         String email = request.getParameter("email");
         String attendingState = request.getParameter("attendingState");
 
-        List<Member> members = null;
-        if (cardinalNumber != null) {
-            members = memberRepository.findMemberByCardinalNumber(new CardinalNumber(Integer.parseInt(cardinalNumber)));
-        } else if (name != null) {
-            members = memberRepository.findMemberByName(new Name(name));
-        } else if (position != null) {
-            members = memberRepository.findMemberByPosition(new Position(position));
-        } else if (phone != null) {
-            members = memberRepository.findMemberByPhone(new Phone(phone));
+        List<MemberRepository> memberRepositorys;
+        if (attendingState != null) {
+            memberRepositorys = memberRepository.searchMembers(new AttendingState(attendingState));
+        } else if (cardinalNumber != null) {
+            memberRepositorys = memberRepository.searchMembers(new CardinalNumber(Integer.parseInt(cardinalNumber)));
         } else if (email != null) {
-            members = memberRepository.findMemberByEmail(new Email(email));
-        } else if (attendingState != null) {
-            members = memberRepository.findMemberByAttendingState(new AttendingState(attendingState));
+            memberRepositorys = memberRepository.searchMembers(new Email(email));
+        } else if (name != null) {
+            memberRepositorys = memberRepository.searchMembers(new Name(name));
+        } else if (phone != null) {
+            memberRepositorys = memberRepository.searchMembers(new Phone(phone));
+        } else if (position != null) {
+            memberRepositorys = memberRepository.searchMembers(new Position(position));
+        } else {
+            memberRepositorys = new LinkedList<>();
         }
 
-        model.put("members", members);
+        model.put("members", memberRepositorys);
 
-        return "member/list";
+        return "searchMembers";
     }
 
     @RequestMapping(path = "/member", method = RequestMethod.POST)
