@@ -1,6 +1,7 @@
 package jaram.groupware.groupware.application;
 
 import jaram.groupware.groupware.model.value.*;
+import jaram.groupware.groupware.persistent.Member;
 import jaram.groupware.groupware.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -71,20 +72,12 @@ public class MemberController {
         String phone = request.getParameter("phone");
         String email = request.getParameter("email");
 
-        if (cardinalNumber == null || name == null || phone == null || email == null ||
-                !memberRepository.checkIntegrity(email)) {
-            model.put("isError", true);
+        Member member = new Member(new CardinalNumber(Integer.parseInt(cardinalNumber)), new Name(name), new Phone(phone), new Email(email));
 
-            return "addMember";
-        }
+        List<Member> members = memberRepository.addMember(member);
+        model.put("members", members);
 
-        MemberRepository newMemberRepository = new MemberRepository(Integer.parseInt(cardinalNumber), name, phone, email);
-        memberRepository.addMember(newMemberRepository);
-        List<MemberRepository> memberRepositorys = memberRepository.getMembers();
-
-        model.put("members", memberRepositorys);
-
-        return "lookupMembers";
+        return "member/list";
     }
 
     @RequestMapping(path = "/member", method = RequestMethod.PUT)
