@@ -1,13 +1,10 @@
 package jaram.groupware.groupware.model.value;
 
-public class AttendingState {
-    private String attendingState;
+public enum AttendingState {
+    재학, 휴학, 졸업;
 
-    public AttendingState(String attendingState) {
-        this.attendingState = attendingState;
-    }
-
-    public String getAttendingState() {
-        return attendingState;
+    public String getAttendingState(){
+        return this.toString();
     }
 }
+
