@@ -36,26 +36,21 @@ public class MemberController {
 
     @RequestMapping(path = "/members", method = RequestMethod.POST)
     public String searchMembers(Map<String, Object> model, HttpServletRequest request) throws IOException, GeneralSecurityException {
-        String cardinalNumber = request.getParameter("cardinalNumber");
-        String name = request.getParameter("name");
-        String position = request.getParameter("position");
-        String phone = request.getParameter("phone");
-        String email = request.getParameter("email");
-        String attendingState = request.getParameter("attendingState");
+        Map<String, String[]> filter = request.getParameterMap();
 
         List<Member> members = null;
-        if (cardinalNumber != null) {
-            members = memberRepository.findMemberByCardinalNumber(new CardinalNumber(Integer.parseInt(cardinalNumber)));
-        } else if (name != null) {
-            members = memberRepository.findMemberByName(new Name(name));
-        } else if (position != null) {
-            members = memberRepository.findMemberByPosition(new Position(position));
-        } else if (phone != null) {
-            members = memberRepository.findMemberByPhone(new Phone(phone));
-        } else if (email != null) {
-            members = memberRepository.findMemberByEmail(new Email(email));
-        } else if (attendingState != null) {
-            members = memberRepository.findMemberByAttendingState(new AttendingState(attendingState));
+        if (filter.get("filter")[0].equals("cardinalNumber")) {
+            members = memberRepository.findMemberByCardinalNumber(new CardinalNumber(Integer.parseInt(filter.get("q")[0])));
+        } else if (filter.get("filter")[0].equals("name")) {
+            members = memberRepository.findMemberByName(new Name(filter.get("q")[0]));
+        } else if (filter.get("filter")[0].equals("position")) {
+            members = memberRepository.findMemberByPosition(Position.valueOf(filter.get("q")[0]));
+        } else if (filter.get("filter")[0].equals("phone")) {
+            members = memberRepository.findMemberByPhone(new Phone(filter.get("q")[0]));
+        } else if (filter.get("filter")[0].equals("email")) {
+            members = memberRepository.findMemberByEmail(new Email(filter.get("q")[0]));
+        } else if (filter.get("filter")[0].equals("attendingState")) {
+            members = memberRepository.findMemberByAttendingState(AttendingState.valueOf(filter.get("q")[0]));
         }
 
         model.put("members", members);

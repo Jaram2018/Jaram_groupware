@@ -10,9 +10,7 @@ public class Member {
     private Email email;
     private AttendingState attendingState;
 
-    public Member() {
-
-    }
+    public Member() { }
 
     public Member(CardinalNumber cardinalNumber, Name name, Position position, Phone phone, Email email, AttendingState attendingState){
         this.cardinalNumber = cardinalNumber;
@@ -28,8 +26,8 @@ public class Member {
         this.name = name;
         this.email = email;
         this.phone = phone;
-        this.position = new Position("수습");
-        this.attendingState = new AttendingState("재학");
+        this.position = Position.수습;
+        this.attendingState = AttendingState.재학;
     }
 
     public int getCardinalNumber() {
@@ -41,7 +39,7 @@ public class Member {
     }
 
     public String getPosition() {
-        return position.getposition();
+        return position.toString();
     }
 
     public String getPhone() {
@@ -53,6 +51,6 @@ public class Member {
     }
 
     public String getAttendingState() {
-        return attendingState.getAttendingState();
+        return attendingState.toString();
     }
 }
