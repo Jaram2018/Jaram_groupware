@@ -120,7 +120,7 @@ public class Spreadsheets implements MemberRepository {
         List<Member> result = new LinkedList<>();
 
         for (Member member : members) {
-            if (member.getName().equals(name.getName())) {
+            if (member.getName().contains(name.getName())) {
                 result.add(member);
             }
         }
