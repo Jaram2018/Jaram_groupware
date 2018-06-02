@@ -16,7 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -159,7 +158,7 @@ public class MemberController {
         return "member/list";
     }
 
-    @RequestMapping(path = "/member", method = RequestMethod.DELETE)
+    @RequestMapping(path = "/members/delete", method = RequestMethod.POST)
     public boolean deleteMember(Map<String, Object> model, HttpServletRequest request) {
         String memberString = request.getParameter("members");
 
@@ -176,16 +175,16 @@ public class MemberController {
             if (member.get("email") != null) {
                 String email = member.get("email").getAsString();
                 try {
-                    Member m = findMember(new Email(email));
-                    if (!deleteMember(m)) return false;
+                    Member m = memberRepository.findOneMemberByEmail(new Email(email));
+                    if (!memberRepository.deleteMember(m)) return false;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             } else if (member.get("phone") != null) {
                 String phone = member.get("phone").getAsString();
                 try {
-                    Member m = findMember(new Phone(phone));
-                    if (!deleteMember(m)) return false;
+                    Member m = memberRepository.findOneMemberByPhone(new Phone(phone));
+                    if (!memberRepository.deleteMember(m)) return false;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -193,8 +192,8 @@ public class MemberController {
                 String name = member.get("name").getAsString();
                 int cardinalNumber = member.get("cardinalNumber").getAsInt();
                 try {
-                    Member m = findMember(new Name(name), new CardinalNumber(cardinalNumber));
-                    if (deleteMember(m)) return false;
+                    Member m = memberRepository.findOneMemberByCardinalNumberAndName(new CardinalNumber(cardinalNumber), new Name(name));
+                    if (memberRepository.deleteMember(m)) return false;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -204,31 +203,5 @@ public class MemberController {
         return true;
     }
 
-    private void checkMemberSize(List<Member> m) throws Exception {
-        if (m.size() == 0 || m.size() >= 2) throw new Exception();
-    }
-
-    private Member findMember(Phone phone) throws Exception {
-        List<Member> m = memberRepository.findMemberByPhone(phone);
-        checkMemberSize(m);
-        return m.get(0);
-    }
-
-    private Member findMember(Email email) throws Exception {
-        List<Member> m = memberRepository.findMemberByEmail(email);
-        checkMemberSize(m);
-        return m.get(0);
-    }
-
-    private Member findMember(Name name, CardinalNumber cardinalNumber) throws Exception {
-        List<Member> m = memberRepository.findOneMemberByCardinalNumberAndName(cardinalNumber, name);
-        checkMemberSize(m);
-        return m.get(0);
-    }
-
-    private boolean deleteMember(Member m) throws IOException, GeneralSecurityException {
-        memberRepository.deleteMember(m);
-        return true;
-    }
 
 }
