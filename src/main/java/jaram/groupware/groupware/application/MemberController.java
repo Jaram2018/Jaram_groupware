@@ -159,14 +159,20 @@ public class MemberController {
     }
 
     @RequestMapping(path = "/members/delete", method = RequestMethod.POST)
-    public boolean deleteMember(Map<String, Object> model, HttpServletRequest request) {
+    public String deleteMember(Map<String, Object> model, HttpServletRequest request) {
         String memberString = request.getParameter("members");
+
+        if (memberString == null){
+            model.put("error","삭제할 멤버를 선택해주세요");
+            return "error";
+        }
 
         Gson gson = new Gson();
 
         JsonArray members = gson.fromJson(memberString, JsonArray.class);
 
         Iterator<JsonElement> iterator = members.iterator();
+
 
         while (iterator.hasNext()) {
             JsonElement element = iterator.next();
@@ -176,7 +182,10 @@ public class MemberController {
                 String email = member.get("email").getAsString();
                 try {
                     Member m = memberRepository.findOneMemberByEmail(new Email(email));
-                    if (!memberRepository.deleteMember(m)) return false;
+                    if (!memberRepository.deleteMember(m)){
+                        model.put("errorMsg", "삭제 실패");
+                        return "error";
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -184,23 +193,32 @@ public class MemberController {
                 String phone = member.get("phone").getAsString();
                 try {
                     Member m = memberRepository.findOneMemberByPhone(new Phone(phone));
-                    if (!memberRepository.deleteMember(m)) return false;
+                    if (!memberRepository.deleteMember(m)){
+                        model.put("errorMsg", "삭제 실패");
+                        return "error";
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             } else {
-                String name = member.get("name").getAsString();
-                int cardinalNumber = member.get("cardinalNumber").getAsInt();
                 try {
+                    String name = member.get("name").getAsString();
+                    int cardinalNumber = member.get("cardinalNumber").getAsInt();
                     Member m = memberRepository.findOneMemberByCardinalNumberAndName(new CardinalNumber(cardinalNumber), new Name(name));
-                    if (memberRepository.deleteMember(m)) return false;
-                } catch (Exception e) {
+                    if (!memberRepository.deleteMember(m)){
+                        model.put("errorMsg", "삭제 실패");
+                        return "error";
+                    }
+                } catch (NumberFormatException e){
+                    model.put("errorMsg", "잘못된 기수입니다.");
+                    return "error";
+                } catch (Exception e){
                     e.printStackTrace();
                 }
             }
         }
 
-        return true;
+        return "lookupMembers";
     }
 
 
