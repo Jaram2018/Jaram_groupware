@@ -1,5 +1,9 @@
 package jaram.groupware.groupware.application;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import jaram.groupware.groupware.model.value.*;
 import jaram.groupware.groupware.persistent.Member;
 import jaram.groupware.groupware.repository.MemberRepository;
@@ -8,10 +12,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import javax.servlet.http.HttpServletRequest;
-import java.util.LinkedList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +27,10 @@ import java.util.Map;
 public class MemberController {
     @Autowired
     private MemberRepository memberRepository;
+
+    public MemberRepository getMemberRepository() {
+        return memberRepository;
+    }
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String lookupMembers(Map<String, Object> model) throws IOException, GeneralSecurityException {
@@ -144,10 +152,74 @@ public class MemberController {
             return "error";
         }
 
-
         List<Member> members = memberRepository.findAllMembers();
         model.put("members", members);
 
         return "member/list";
     }
+
+    @RequestMapping(path = "/members/delete", method = RequestMethod.POST)
+    public String deleteMember(Map<String, Object> model, HttpServletRequest request) {
+        String memberString = request.getParameter("members");
+
+        if (memberString == null){
+            model.put("error","삭제할 멤버를 선택해주세요");
+            return "error";
+        }
+
+        Gson gson = new Gson();
+
+        JsonArray members = gson.fromJson(memberString, JsonArray.class);
+
+        Iterator<JsonElement> iterator = members.iterator();
+
+
+        while (iterator.hasNext()) {
+            JsonElement element = iterator.next();
+            JsonObject member = element.getAsJsonObject();
+
+            if (member.get("email") != null) {
+                String email = member.get("email").getAsString();
+                try {
+                    Member m = memberRepository.findOneMemberByEmail(new Email(email));
+                    if (!memberRepository.deleteMember(m)){
+                        model.put("errorMsg", "삭제 실패");
+                        return "error";
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else if (member.get("phone") != null) {
+                String phone = member.get("phone").getAsString();
+                try {
+                    Member m = memberRepository.findOneMemberByPhone(new Phone(phone));
+                    if (!memberRepository.deleteMember(m)){
+                        model.put("errorMsg", "삭제 실패");
+                        return "error";
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                try {
+                    String name = member.get("name").getAsString();
+                    int cardinalNumber = member.get("cardinalNumber").getAsInt();
+                    Member m = memberRepository.findOneMemberByCardinalNumberAndName(new CardinalNumber(cardinalNumber), new Name(name));
+                    if (!memberRepository.deleteMember(m)){
+                        model.put("errorMsg", "삭제 실패");
+                        return "error";
+                    }
+                } catch (NumberFormatException e){
+                    model.put("errorMsg", "잘못된 기수입니다.");
+                    return "error";
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return "lookupMembers";
+    }
+
+
 }
