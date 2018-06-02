@@ -24,17 +24,19 @@
 
     </div>
     <div id="search-container">
-        <select>
-            <option value="cardinalNumber">기수</option>
-            <option value="name">이름</option>
-            <option value="position">직책</option>
-            <option value="phone">전화번호</option>
-            <option value="email">이메일</option>
-        </select>
-        <div>
-            <input type="search" id="search_member" name="q">
-            <button>Search</button>
-        </div>
+        <form action="/members" method="post">
+            <select name="filter">
+                <option value="cardinalNumber">기수</option>
+                <option value="name">이름</option>
+                <option value="position">직책</option>
+                <option value="phone">전화번호</option>
+                <option value="email">이메일</option>
+            </select>
+            <div>
+                <input type="search" id="search_member" name="q">
+                <button>Search</button>
+            </div>
+        </form>
     </div>
     <div id="list-container" layout:fragment="list">
         <p>this is list</p>

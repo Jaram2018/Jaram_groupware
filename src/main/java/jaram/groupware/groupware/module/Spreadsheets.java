@@ -82,34 +82,20 @@ public class Spreadsheets implements MemberRepository {
         List<Member> members = new LinkedList<>();
 
         if (values == null || values.isEmpty()) {
-            System.out.println("No data found.");
+            return false;
+        } else {
+            for (List row : values) {
+                CardinalNumber cardinalNumber = new CardinalNumber(Integer.parseInt((String)row.get(0)));
+                Name name = new Name((String)row.get(1));
+                Position position = Position.valueOf((String)row.get(2));
+                Phone phone = new Phone((String)row.get(3));
+                Email email = new Email((String)row.get(4));
+                AttendingState attendingState = AttendingState.valueOf((String)row.get(5));
+                members.add(new Member(cardinalNumber, name, position, phone, email, attendingState));
+            }
         }
 
-        CardinalNumber cardinalNumber;
-        Name name;
-        Position position;
-        Phone phone;
-        Email email;
-        AttendingState attendingState;
-
-
-        for (List row : values) {
-            cardinalNumber = new CardinalNumber(Integer.parseInt((String)row.get(0)));
-            name = new Name((String)row.get(1));
-            position = new Position((String)row.get(2));
-            phone = new Phone((String)row.get(3));
-            email = new Email((String)row.get(4));
-            attendingState = new AttendingState((String)row.get(5));
-            members.add(new Member(cardinalNumber, name, position, phone, email, attendingState));
-        }
-
-        Jedis jedis = new Jedis("localhost", 6379);
-        Gson gson = new Gson();
-
-        String json = gson.toJson(members);
-        jedis.set("members", json);
-        jedis.expire("members", 60 * 60 * 6);
-        jedis.close();
+        writeJsonToRedis(members);
 
         return true;
     }
@@ -134,7 +120,7 @@ public class Spreadsheets implements MemberRepository {
         List<Member> result = new LinkedList<>();
 
         for (Member member : members) {
-            if (member.getName().equals(name.getName())) {
+            if (member.getName().contains(name.getName())) {
                 result.add(member);
             }
         }
@@ -148,7 +134,7 @@ public class Spreadsheets implements MemberRepository {
         List<Member> result = new LinkedList<>();
 
         for (Member member : members) {
-            if (member.getPosition().equals(position.getposition())) {
+            if (member.getPosition().equals(position.getPosition())) {
                 result.add(member);
             }
         }
@@ -162,7 +148,7 @@ public class Spreadsheets implements MemberRepository {
         List<Member> result = new LinkedList<>();
 
         for (Member member : members) {
-            if (member.getPhone().equals(phone.getPhone())) {
+            if (member.getPhone().contains(phone.getPhone())) {
                 result.add(member);
             }
         }
@@ -176,7 +162,7 @@ public class Spreadsheets implements MemberRepository {
         List<Member> result = new LinkedList<>();
 
         for (Member member : members) {
-            if (member.getEmail().equals(email.getEmail())) {
+            if (member.getEmail().contains(email.getEmail())) {
                 result.add(member);
             }
         }
@@ -243,28 +229,58 @@ public class Spreadsheets implements MemberRepository {
     }
 
     @Override
-    public List<Member> addMember(Member member) throws IOException, GeneralSecurityException {
+    public boolean addMember(Member member) throws IOException, GeneralSecurityException {
         List<Member> members = findAllMembers();
+        if (!checkIntegrity(new Email(member.getEmail())))
+            return false;
+
         members.add(member);
+
+        Collections.sort(members);
 
         writeJsonToRedis(members);
         writeMembers();
 
-        return members;
+        return true;
     }
 
     @Override
-    public List<Member> findMemberByCardinalNumberAndName(CardinalNumber cardinalNumber, Name name) throws IOException, GeneralSecurityException {
+    public Member findOneMemberByEmail(Email email) throws IOException, GeneralSecurityException {
         List<Member> members = findAllMembers();
-        List<Member> result = new LinkedList<>();
 
         for (Member member : members) {
-            if (member.getCardinalNumber() == cardinalNumber.getCardinalNumber() && member.getName().equals(name.getName())) {
-                result.add(member);
+            if (member.getEmail().equals(email.getEmail())) {
+                return member;
             }
         }
 
-        return result;
+        return null;
+    }
+
+    @Override
+    public Member findOneMemberByPhone(Phone phone) throws IOException, GeneralSecurityException {
+        List<Member> members = findAllMembers();
+
+        for (Member member : members) {
+            if (member.getPhone().equals(phone.getPhone())) {
+                return member;
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public Member findOneMemberByCardinalNumberAndName(CardinalNumber cardinalNumber, Name name) throws IOException, GeneralSecurityException {
+        List<Member> members = findAllMembers();
+
+        for (Member member : members) {
+            if (member.getCardinalNumber() == cardinalNumber.getCardinalNumber() && member.getName().equals(name.getName())) {
+                return member;
+            }
+        }
+
+        return null;
     }
 
     @Override
@@ -275,12 +291,15 @@ public class Spreadsheets implements MemberRepository {
             return false;
         }
 
-        for (Member member : members) {
-            if (member == targetMember) {
-                member = new Member(cardinalNumber, name, position, phone, email, attendingState);
-                break;
-            }
+        Member updateMember = getOneMember(targetMember, members);
+
+        if (updateMember == null) {
+            return false;
         }
+
+        updateMember.updateMember(cardinalNumber, name, position, phone, email, attendingState);
+
+        Collections.sort(members);
 
         writeJsonToRedis(members);
         writeMembers();
@@ -295,21 +314,32 @@ public class Spreadsheets implements MemberRepository {
         String json = gson.toJson(members);
         jedis.set("members", json);
         jedis.expire("members", 60 * 60 * 6);
+        jedis.close();
     }
 
     @Override
-    public List<Member> deleteMemebr(Member targetMember) throws IOException, GeneralSecurityException {
+    public boolean deleteMember(Member targetMember) throws IOException, GeneralSecurityException {
         List<Member> members = findAllMembers();
-        for (Member member : members) {
-            if (member.getEmail().equals(targetMember.getEmail())) {
-                members.remove(member);
-                break;
-            }
+        Member deleteMember = getOneMember(targetMember, members);
+
+        if (deleteMember == null){
+            return false;
         }
 
         writeJsonToRedis(members);
         writeMembers();
 
-        return members;
+        return true;
+    }
+
+    private Member getOneMember(Member targetMember, List<Member> members) {
+        for (Member member : members) {
+            if (member.getEmail().equals(targetMember.getEmail()) || member.getPhone().equals(targetMember.getPhone()) ||
+                    (member.getCardinalNumber() == targetMember.getCardinalNumber() && member.getName().equals(targetMember.getName()))) {
+                return member;
+            }
+        }
+
+        return null;
     }
 }

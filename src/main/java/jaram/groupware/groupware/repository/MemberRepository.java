@@ -24,12 +24,15 @@ public interface MemberRepository {
 
     List<Member> findMemberByAttendingState(AttendingState attendingState) throws IOException, GeneralSecurityException;
 
-    List<Member> addMember(Member newMember) throws IOException, GeneralSecurityException;
+    boolean addMember(Member newMember) throws IOException, GeneralSecurityException;
 
-    List<Member> findMemberByCardinalNumberAndName(CardinalNumber cardinalNumber, Name name) throws IOException, GeneralSecurityException;
+    Member findOneMemberByEmail(Email email) throws IOException, GeneralSecurityException;
+
+    Member findOneMemberByPhone(Phone phone) throws IOException, GeneralSecurityException;
+
+    Member findOneMemberByCardinalNumberAndName(CardinalNumber cardinalNumber, Name name) throws IOException, GeneralSecurityException;
 
     boolean updateMember(Member targetMember, CardinalNumber cardinalNumber, Name name, Position position, Phone phone, Email email, AttendingState attendingState) throws IOException, GeneralSecurityException;
 
-    List<Member> deleteMember(Member targetMember) throws IOException, GeneralSecurityException;
-
+    boolean deleteMember(Member targetMember) throws IOException, GeneralSecurityException;
 }

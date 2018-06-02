@@ -45,33 +45,42 @@ public class MemberController {
 
     @RequestMapping(path = "/members", method = RequestMethod.POST)
     public String searchMembers(Map<String, Object> model, HttpServletRequest request) throws IOException, GeneralSecurityException {
-        String cardinalNumber = request.getParameter("cardinalNumber");
-        String name = request.getParameter("name");
-        String position = request.getParameter("position");
-        String phone = request.getParameter("phone");
-        String email = request.getParameter("email");
-        String attendingState = request.getParameter("attendingState");
+        Map<String, String[]> filter = request.getParameterMap();
 
-        List<Member> memberRepositorys;
-        if (attendingState != null) {
-            memberRepositorys = memberRepository.findMemberByAttendingState(new AttendingState(attendingState));
-        } else if (cardinalNumber != null) {
-            memberRepositorys = memberRepository.findMemberByCardinalNumber(new CardinalNumber(Integer.parseInt(cardinalNumber)));
-        } else if (email != null) {
-            memberRepositorys = memberRepository.findMemberByEmail(new Email(email));
-        } else if (name != null) {
-            memberRepositorys = memberRepository.findMemberByName(new Name(name));
-        } else if (phone != null) {
-            memberRepositorys = memberRepository.findMemberByPhone(new Phone(phone));
-        } else if (position != null) {
-            memberRepositorys = memberRepository.findMemberByPosition(new Position(position));
-        } else {
-            memberRepositorys = new LinkedList<>();
+        List<Member> members = null;
+        switch (filter.get("filter")[0]) {
+            case "cardinalNumber":
+                try {
+                    members = memberRepository.findMemberByCardinalNumber(new CardinalNumber(Integer.parseInt(filter.get("q")[0])));
+                } catch (NumberFormatException ignored) {
+                }
+                break;
+            case "name":
+                members = memberRepository.findMemberByName(new Name(filter.get("q")[0]));
+                break;
+            case "position":
+                try {
+                    members = memberRepository.findMemberByPosition(Position.valueOf(filter.get("q")[0]));
+                } catch (IllegalArgumentException ignored) {
+                }
+                break;
+            case "phone":
+                members = memberRepository.findMemberByPhone(new Phone(filter.get("q")[0]));
+                break;
+            case "email":
+                members = memberRepository.findMemberByEmail(new Email(filter.get("q")[0]));
+                break;
+            case "attendingState":
+                try {
+                    members = memberRepository.findMemberByAttendingState(AttendingState.valueOf(filter.get("q")[0]));
+                } catch (IllegalArgumentException ignored) {
+                }
+                break;
         }
 
-        model.put("members", memberRepositorys);
+        model.put("members", members);
 
-        return "searchMembers";
+        return "member/list";
     }
 
     @RequestMapping(path = "/member", method = RequestMethod.POST)
@@ -81,25 +90,22 @@ public class MemberController {
         String phone = request.getParameter("phone");
         String email = request.getParameter("email");
 
-        if (cardinalNumber == null || name == null || phone == null || email == null ||
-                !memberRepository.checkIntegrity(email)) {
-            model.put("isError", true);
-
-            return "addMember";
+        Member member = new Member(new CardinalNumber(Integer.parseInt(cardinalNumber)), new Name(name), new Phone(phone), new Email(email));
+        if (!memberRepository.addMember(member)){
+            model.put("errorMsg", "추가를 실패하였습니다.");
+            return "error";
         }
 
-        MemberRepository newMemberRepository = new MemberRepository(Integer.parseInt(cardinalNumber), name, phone, email);
-        memberRepository.addMember(newMemberRepository);
-        List<MemberRepository> memberRepositorys = memberRepository.getMembers();
+        List<Member> members = memberRepository.findAllMembers();
+        model.put("members", members);
 
-        model.put("members", memberRepositorys);
-
-        return "lookupMembers";
+        return "member/list";
     }
 
-    @RequestMapping(path = "/member", method = RequestMethod.PUT)
-    public String updateMember(Map<String, Object> model, HttpServletRequest request) {
+    @RequestMapping(path = "/member/update", method = RequestMethod.POST)
+    public String updateMember(Map<String, Object> model, HttpServletRequest request) throws IOException, GeneralSecurityException {
         String searchEmail = request.getParameter("searchEmail");
+        String searchPhone = request.getParameter("searchPhone");
         String searchCardinalNumber = request.getParameter("searchCardinalNumber");
         String searchName = request.getParameter("searchName");
 
@@ -110,30 +116,47 @@ public class MemberController {
         String email = request.getParameter("email");
         String attendingState = request.getParameter("attendingState");
 
-        List<MemberRepository> memberRepository;
+        Member targetMember;
         if (searchEmail != null) {
-            memberRepository = this.memberRepository.findMemberByEmail(new Email(searchEmail));
+            targetMember = memberRepository.findOneMemberByEmail(new Email(searchEmail));
+        } else if (searchPhone != null) {
+            targetMember = memberRepository.findOneMemberByPhone(new Phone(searchPhone));
         } else if (searchCardinalNumber != null && searchName != null) {
-            memberRepository = this.memberRepository.findMemberByCardinalNumber(new CardinalNumber(Integer.parseInt(cardinalNumber)), new Name(searchName));
+            try {
+                targetMember = memberRepository.findOneMemberByCardinalNumberAndName(new CardinalNumber(Integer.parseInt(searchCardinalNumber)), new Name(searchName));
+            } catch (NumberFormatException e){
+                model.put("errorMsg", "잘못된 기수입니다.");
+                return "error";
+            }
         } else {
-            List<MemberRepository> memberRepositorys = this.memberRepository.getMembers();
-            model.put("members", memberRepositorys);
-
-            return "lookupMembers";
+            model.put("errorMsg", "해당 유저가 없습니다");
+            return "error";
         }
 
         if (cardinalNumber.equals("") || name.equals("") || position.equals("") || phone.equals("")
-                || email.equals("") || attendingState.equals("") || memberRepository.size() > 1) {
-            model.put("isError", true);
+                || email.equals("") || attendingState.equals("")) {
+            model.put("errorMsg", "입력되지 않은 값이 있습니다.");
 
             return "updateMember";
         }
+        try {
+            if (!memberRepository.updateMember(targetMember, new CardinalNumber(Integer.parseInt(cardinalNumber)), new Name(name),
+                    Position.valueOf(position), new Phone(phone), new Email(email), AttendingState.valueOf(attendingState))) {
+                model.put("errorMsg", "수정을 실패하였습니다.");
+                return "error";
+            }
+        } catch (NumberFormatException e) {
+            model.put("errorMsg", "잘못된 기수입니다.");
+            return "error";
+        } catch (IllegalArgumentException e) {
+            model.put("errorMsg", "잘못된 값을 입력하셨습니다.");
+            return "error";
+        }
 
-        memberRepository.updateMember(Integer.parseInt(cardinalNumber), name, position, phone, email, attendingState);
-        List<MemberRepository> memberRepositorys = this.getMembers();
-        model.put("members", memberRepositorys);
+        List<Member> members = memberRepository.findAllMembers();
+        model.put("members", members);
 
-        return "lookupMembers";
+        return "member/list";
     }
 
     @RequestMapping(path = "/member", method = RequestMethod.DELETE)
@@ -198,7 +221,7 @@ public class MemberController {
     }
 
     private Member findMember(Name name, CardinalNumber cardinalNumber) throws Exception {
-        List<Member> m = memberRepository.findMemberByCardinalNumberAndName(cardinalNumber, name);
+        List<Member> m = memberRepository.findOneMemberByCardinalNumberAndName(cardinalNumber, name);
         checkMemberSize(m);
         return m.get(0);
     }
