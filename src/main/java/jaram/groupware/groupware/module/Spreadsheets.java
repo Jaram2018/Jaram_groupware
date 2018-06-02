@@ -326,6 +326,8 @@ public class Spreadsheets implements MemberRepository {
             return false;
         }
 
+        members.remove(deleteMember);
+
         writeJsonToRedis(members);
         writeMembers();
 
