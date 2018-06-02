@@ -204,7 +204,7 @@ public class MemberController {
     }
 
     private boolean deleteMember(Member m) throws IOException, GeneralSecurityException {
-        memberRepository.deleteMemeber(m);
+        memberRepository.deleteMember(m);
         return true;
     }
 

@@ -30,5 +30,6 @@ public interface MemberRepository {
 
     boolean updateMember(Member targetMember, CardinalNumber cardinalNumber, Name name, Position position, Phone phone, Email email, AttendingState attendingState) throws IOException, GeneralSecurityException;
 
-    List<Member> deleteMemebr(Member targetMember) throws IOException, GeneralSecurityException;
+    List<Member> deleteMember(Member targetMember) throws IOException, GeneralSecurityException;
+
 }
