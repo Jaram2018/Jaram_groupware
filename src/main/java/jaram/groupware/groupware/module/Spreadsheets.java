@@ -291,20 +291,13 @@ public class Spreadsheets implements MemberRepository {
             return false;
         }
 
-        for (Member member : members) {
-            if (member.getEmail().equals(targetMember.getEmail())) {
-                member.updateMember(cardinalNumber, name, position, phone, email, attendingState);
-                break;
-            }
-            if (member.getPhone().equals(targetMember.getPhone())) {
-                member.updateMember(cardinalNumber, name, position, phone, email, attendingState);
-                break;
-            }
-            if (member.getCardinalNumber() == targetMember.getCardinalNumber() && member.getName().equals(targetMember.getName())) {
-                member.updateMember(cardinalNumber, name, position, phone, email, attendingState);
-                break;
-            }
+        Member updateMember = getOneMember(targetMember, members);
+
+        if (updateMember == null) {
+            return false;
         }
+
+        updateMember.updateMember(cardinalNumber, name, position, phone, email, attendingState);
 
         Collections.sort(members);
 
@@ -325,26 +318,28 @@ public class Spreadsheets implements MemberRepository {
     }
 
     @Override
-    public List<Member> deleteMember(Member targetMember) throws IOException, GeneralSecurityException {
+    public boolean deleteMember(Member targetMember) throws IOException, GeneralSecurityException {
         List<Member> members = findAllMembers();
-        for (Member member : members) {
-            if (member.getEmail().equals(targetMember.getEmail())) {
-                members.remove(member);
-                break;
-            }
-            if (member.getPhone().equals(targetMember.getPhone())) {
-                members.remove(member);
-                break;
-            }
-            if (member.getCardinalNumber() == targetMember.getCardinalNumber() && member.getName().equals(targetMember.getName())) {
-                members.remove(member);
-                break;
-            }
+        Member deleteMember = getOneMember(targetMember, members);
+
+        if (deleteMember == null){
+            return false;
         }
 
         writeJsonToRedis(members);
         writeMembers();
 
-        return members;
+        return true;
+    }
+
+    private Member getOneMember(Member targetMember, List<Member> members) {
+        for (Member member : members) {
+            if (member.getEmail().equals(targetMember.getEmail()) || member.getPhone().equals(targetMember.getPhone()) ||
+                    (member.getCardinalNumber() == targetMember.getCardinalNumber() && member.getName().equals(targetMember.getName()))) {
+                return member;
+            }
+        }
+
+        return null;
     }
 }
