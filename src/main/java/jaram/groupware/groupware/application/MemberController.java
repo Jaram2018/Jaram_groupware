@@ -28,10 +28,6 @@ public class MemberController {
     @Autowired
     private MemberRepository memberRepository;
 
-    public MemberRepository getMemberRepository() {
-        return memberRepository;
-    }
-
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String lookupMembers(Map<String, Object> model) throws IOException, GeneralSecurityException {
 
@@ -82,7 +78,7 @@ public class MemberController {
         return "member/list";
     }
 
-    @RequestMapping(path = "/member", method = RequestMethod.POST)
+    @RequestMapping(path = "/member/add", method = RequestMethod.POST)
     public String addMember(Map<String, Object> model, HttpServletRequest request) throws IOException, GeneralSecurityException {
         String cardinalNumber = request.getParameter("cardinalNumber");
         String name = request.getParameter("name");
