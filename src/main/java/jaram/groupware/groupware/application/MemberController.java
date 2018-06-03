@@ -165,7 +165,7 @@ public class MemberController {
                 || email.equals("") || attendingState.equals("")) {
             model.put("errorMsg", "입력되지 않은 값이 있습니다.");
 
-            return "member/updateMember";
+            return "member/update";
         }
         try {
             if (!memberRepository.updateMember(targetMember, new CardinalNumber(Integer.parseInt(cardinalNumber)), new Name(name),
