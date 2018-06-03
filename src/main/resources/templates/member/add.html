@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="layout">
+
+
+<head>
+    <title>회원 추가</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<div layout:fragment="content">
+    <h2>회원 추가</h2>
+    <form action="/member/add" method="post">
+        기수:<br>
+        <input type="number" name="cardinalNumber">
+        <br>
+        이름:<br>
+        <input type="text" name="name">
+        <br>
+        전화번호:<br>
+        <input type="text" name="phone">
+        <br>
+        이메일:<br>
+        <input type="text" name="email">
+        <br><br>
+        <input type="submit">
+    </form>
+</div>
+</body>
+</html>
