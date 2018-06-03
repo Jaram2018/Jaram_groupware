@@ -14,16 +14,86 @@
 
 
 <div layout:fragment="content">
-    <h1>회원관리</h1>
     <div id="buttons-container">
-        <button class="change-list-show">전체</button>
-        <button class="change-list-show">재학생</button>
-        <button class="change-list-show">졸업생</button>
-        <button class="change-list-show">휴학생</button>
-        <button class="change-members">삭제</button>
-        <button class="change-members">추가</button>
+        <button class="change-list-show" onclick="location.href='/member/all'">전체</button>
+        <button class="change-list-show" onclick="location.href='/member/attend'">재학생</button>
+        <button class="change-list-show" onclick="location.href='/member/graduate'">졸업생</button>
+        <button class="change-list-show" onclick="location.href='/member/dormant'">휴학생</button>
+        <button class="change-members" id="delete_members">삭제</button>
+        <button class="change-members" onclick="location.href='/member/add'">추가</button>
 
     </div>
+
+    <script>
+        $("#delete_members").click(function(e) {
+            {
+                //jsonArray
+                var members = new Array();
+                var rowData = new Array();
+                var tdArr = new Array();
+                var checkbox = $("input[name=collectedMember]:checked");
+
+                checkbox.each(function (i) {
+                    var tr = checkbox.parent().parent().eq(i);
+                    var td = tr.children();
+
+                    rowData.push(tr.text());
+
+                    var email = td.eq(5).text();
+                    var phone = td.eq(4).text();
+                    var name = td.eq(2).text();
+                    var cardinalNumber = Number(td.eq(1).text());
+
+                    tdArr.push(email);
+                    tdArr.push(phone);
+                    tdArr.push(name);
+                    tdArr.push(cardinalNumber);
+
+                    var member = new Object();
+
+                    member.email = email;
+                    member.phone = phone;
+                    member.name = name;
+                    member.cardinalNumber = cardinalNumber;
+
+                    members.push(member);
+                    console.log(members)
+                });
+                if(members.length == 0){
+                    members = null
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "/members/delete",
+                    data: {
+                        "members": JSON.stringify(members)
+                    },
+                    datatype: "json",
+                    success: function (result) {
+                        console.log('ok');
+                        if(result == "success"){
+                            alert("삭제되었습니다.");
+                            setTimeout(
+                                function()
+                                {
+                                    location.reload();
+                                }, 0001);
+                        }
+                        else{
+                            alert(result);
+                        }
+                    },
+                    error: function (result) {
+                        console.log('error');
+                    }
+
+                });
+            }
+        });
+    </script>
+
+
+
     <div id="search-container">
         <form action="/members" method="post">
             <select name="filter">
@@ -39,13 +109,31 @@
             </div>
         </form>
     </div>
-    <div id="list-container" layout:fragment="list">
-        <p>this is list</p>
-        <!--<th:block layout:fragment="list">-->
+    <div id="list-container">
+        <table id="member_list">
+            <tr>
+                <th></th>
+                <th>기수</th>
+                <th>이름</th>
+                <th>직책</th>
+                <th>전화번호</th>
+                <th>이메일</th>
+                <th>재학여부</th>
+            </tr>
+            <th:block th:each="member : ${members}">
+                <tr>
+                    <td/><input type="checkbox" name="collectedMember" th:value="${member.email}" />
+                    <td th:text="${member.cardinalNumber}"/>
+                    <td th:text="${member.name}"/>
+                    <td th:text="${member.position}"/>
+                    <td th:text="${member.phone}"/>
+                    <td th:text="${member.email}"/>
+                    <td th:text="${member.attendingState}"/>
+                </tr>
+            </th:block>
+        </table>
 
-        <!--</th:block>-->
     </div>
 </div>
-
 </body>
 </html>
