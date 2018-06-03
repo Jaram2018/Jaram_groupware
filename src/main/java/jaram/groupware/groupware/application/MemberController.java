@@ -130,6 +130,11 @@ public class MemberController {
         return "redirect:/";
     }
 
+    @RequestMapping(path = "/member/update", method = RequestMethod.GET)
+    public String getUpdateMember() throws IOException, GeneralSecurityException {
+        return "member/update";
+    }
+
     @RequestMapping(path = "/member/update", method = RequestMethod.POST)
     public String updateMember(Map<String, Object> model, HttpServletRequest request) throws IOException, GeneralSecurityException {
         String searchEmail = request.getParameter("searchEmail");
