@@ -36,12 +36,14 @@
                 checkbox.each(function (i) {
                     var tr = checkbox.parent().parent().eq(i);
                     var td = tr.children();
+                    var a = td.children();
 
                     rowData.push(tr.text());
 
                     var email = td.eq(5).text();
                     var phone = td.eq(4).text();
-                    var name = td.eq(2).text();
+//                    var name = td.eq(2).text();
+                    var name = a.text();
                     var cardinalNumber = Number(td.eq(1).text());
 
                     tdArr.push(email);
@@ -124,7 +126,8 @@
                 <tr>
                     <td/><input type="checkbox" name="collectedMember" th:value="${member.email}" />
                     <td th:text="${member.cardinalNumber}"/>
-                    <td th:text="${member.name}"/>
+                    <!--<td th:text="${member.name}"/>-->
+                    <td th:value="${member.name}"><a href="/member/update" th:text="${member.name}"></a></td>
                     <td th:text="${member.position}"/>
                     <td th:text="${member.phone}"/>
                     <td th:text="${member.email}"/>
