@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorator="layout">
 <head>
@@ -8,16 +9,17 @@
 </head>
 <body>
 <div class="main" layout:fragment="content">
-    <form action="/member" method="post">
+    <form action="/member/update" method="post">
         <div class="container">
             <p>회원정보를 모두 입력하고 수정을 눌러주세요.</p>
             <hr>
 
             <label for="cardinalNumber"><b>기수</b></label><br>
-            <input type="number" min="1" placeholder="Ex) 34" name="cardinalNumber" required><br>
+            <input type="number" th:value="${searchCardinalNumber}" name="cardinalNumber" required><br>
+
 
             <label for="name"><b>이름</b></label><br>
-            <input type="text" placeholder="Ex) 김명수" name="name" required><br>
+            <input type="text" th:value="${searchName}" name="name" required><br>
 
             <label for="position"><b>직책</b></label><br>
             <select name="position" required>
@@ -35,10 +37,10 @@
             </select><br>
 
             <label for="phone"><b>전화번호</b></label><br>
-            <input type="text" placeholder="Ex) 010-1234-5678" name="phone" required><br>
+            <input type="text" th:value="${searchPhone}" name="phone" required><br>
 
             <label for="email"><b>이메일</b></label><br>
-            <input type="email" placeholder="Ex) example@gmail.com" name="email" required><br>
+            <input type="email" th:value="${searchEmail}" name="email" required><br>
 
             <label for="attendingState"><b>재학여부</b></label><br>
             <select name="attendingState">
@@ -46,6 +48,11 @@
                 <option value="휴학">휴학</option>
                 <option value="졸업">졸업</option>
             </select><br>
+
+            <input type="hidden" th:value="${searchPhone}" th:attr="name='searchPhone'" />
+            <input type="hidden" th:value="${searchEmail}" th:attr="name='searchEmail'" />
+            <input type="hidden" th:value="${searchCardinalNumber}" th:attr="name='searchCardinalNumber'" />
+            <input type="hidden" th:value="${searchName}" th:attr="name='searchName'" />
 
             <hr>
 
