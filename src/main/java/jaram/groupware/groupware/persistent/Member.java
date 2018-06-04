@@ -79,4 +79,6 @@ public class Member implements Comparable<Member> {
             }
         }
     }
+
+    // TODO createMember 생성.
 }
