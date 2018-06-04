@@ -1,38 +1,64 @@
-.change-list-show{
-    padding: 10px;
+#select_member{
     float: left;
 }
-.change-members{
-    margin-left: 3px;
-    padding:10px;
+
+#change_member{
     float: right;
 }
-#buttons-container{
-    border: 1px solid black;
+
+#buttons_container{
+    padding: 3px;
+    height: auto;
+    overflow: hidden;
+    margin: 10px;
+    margin-top: 30px;
+}
+
+
+#search_container{
     padding: 3px;
     height: auto;
     overflow: hidden;
 }
 
-
-#search-container{
-    border: 1px solid black;
-    padding: 3px;
-    height: auto;
-    overflow: hidden;
-}
-
-#search-container select{
+#search_container select{
     float: left;
     margin-right: 3px;
 }
 
-#search-container div{
+#search_container div{
     /*float: left;*/
     margin: auto;
 }
 
-#search-container div input{
+#search_container div input{
     width: 70%;
 }
 
+#list_container{
+    padding-right:10px;
+    padding-left:10px;
+}
+
+#info_type{
+    color: white;
+    background-color: #111111;
+}
+
+.btn-black{
+    background-color: #1d1d1d;
+    color: #FFF;
+}
+
+.btn-black:hover {
+    background-color: #fafafa;
+    border-color: #111111;
+}
+
+#filter{
+    float: left;
+    padding-left: 10px;
+    padding-right: 15px;
+}
+#search_member_div{
+}

@@ -5,23 +5,32 @@
 
 
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Members</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link rel="stylesheet" type="text/css" href="http://localhost:8080/css/member/baseStyle.css "/>
+
+    <link rel="stylesheet" type="text/css" href="http://localhost:8080/css/member/baseStyle.css"/>
+
     <script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
 
 
 <div layout:fragment="content">
-    <div id="buttons-container">
-        <button class="change-list-show" onclick="location.href='/member/all'">전체</button>
-        <button class="change-list-show" onclick="location.href='/member/attend'">재학생</button>
-        <button class="change-list-show" onclick="location.href='/member/graduate'">졸업생</button>
-        <button class="change-list-show" onclick="location.href='/member/dormant'">휴학생</button>
-        <button class="change-members" id="delete_members">삭제</button>
-        <button class="change-members" onclick="location.href='/member/add'">추가</button>
-
+    <div id="buttons_container">
+        <div class="btn-group" id="select_member">
+            <button type="button" class="btn btn-black" onclick="location.href='/member/all'">전체</button>
+            <button type="button" class="btn btn-black" onclick="location.href='/member/attend'">재학생</button>
+            <button type="button" class="btn btn-black" onclick="location.href='/member/graduate'">졸업생</button>
+            <button type="button" class="btn btn-black" onclick="location.href='/member/dormant'">휴학생</button>
+        </div>
+        <div class="btn-group" id="change_member">
+            <button type="button" class="btn btn-black" id="delete_members">삭제</button>
+            <button type="button" class="btn btn-black" onclick="location.href='/member/add'">추가</button>
+        </div>
     </div>
 
     <script>
@@ -86,24 +95,26 @@
 
 
 
-    <div id="search-container">
+    <div id="search_container">
         <form action="/members" method="post">
-            <select name="filter">
-                <option value="cardinalNumber">기수</option>
-                <option value="name">이름</option>
-                <option value="position">직책</option>
-                <option value="phone">전화번호</option>
-                <option value="email">이메일</option>
-            </select>
-            <div>
-                <input type="search" id="search_member" name="q">
-                <button>Search</button>
+            <div id="filter">
+                <select class="form-control" name="filter">
+                    <option value="cardinalNumber">기수</option>
+                    <option value="name">이름</option>
+                    <option value="position">직책</option>
+                    <option value="phone">전화번호</option>
+                    <option value="email">이메일</option>
+                </select>
+            </div>
+            <div id="search_member_div">
+                <input class="form-group" type="search" id="search_member" name="q">
+                <button class="btn btn-black">Search</button>
             </div>
         </form>
     </div>
-    <div id="list-container">
-        <table id="member_list">
-            <tr>
+    <div id="list_container">
+        <table class="table table-hover">
+            <tr id="info_type">
                 <th></th>
                 <th>기수</th>
                 <th>이름</th>
@@ -117,7 +128,7 @@
                     <td/><input type="checkbox" name="collectedMember" th:value="${member.email}" />
                     <td th:text="${member.cardinalNumber}"/>
                     <!--<td th:text="${member.name}"/>-->
-                    <td th:value="${member.name}"><a href="/member/update" th:text="${member.name}"></a></td>
+                    <td th:value="${member.name}"><a id="member_name" href="/member/update" th:text="${member.name}"></a></td>
                     <td th:text="${member.position}"/>
                     <td th:text="${member.phone}"/>
                     <td th:text="${member.email}"/>
