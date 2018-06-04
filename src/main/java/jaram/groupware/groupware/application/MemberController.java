@@ -9,16 +9,14 @@ import jaram.groupware.groupware.persistent.Member;
 import jaram.groupware.groupware.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.support.RequestContextUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -32,35 +30,41 @@ public class MemberController {
     private MemberRepository memberRepository;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public String lookupMembers(Map<String, Object> model, HttpServletRequest request) throws IOException, GeneralSecurityException {
+    public String main() {
+        return "redirect:/members";
+    }
+
+    @RequestMapping(value = "/members", method = RequestMethod.GET)
+    public String lookupMembers(Map<String, Object> model) throws IOException, GeneralSecurityException {
         List<Member> members= memberRepository.findMemberByAttendingState(AttendingState.재학);
         model.put("members", members);
         return "member/base";
     }
 
     @RequestMapping(value = "/member/all", method = RequestMethod.GET)
-    public String lookupMembersAll(Map<String, Object> model, HttpServletRequest request) throws IOException, GeneralSecurityException {
+    public String lookupMembersAll(Map<String, Object> model) throws IOException, GeneralSecurityException {
         List<Member> members= memberRepository.findAllMembers();
         model.put("members", members);
         return "member/base";
     }
 
     @RequestMapping(value = "/member/attend", method = RequestMethod.GET)
-    public String lookupMembersAttend(Map<String, Object> model, HttpServletRequest request) throws IOException, GeneralSecurityException {
+    public String lookupMembersAttend(Map<String, Object> model
+    ) throws IOException, GeneralSecurityException {
         List<Member> members= memberRepository.findMemberByAttendingState(AttendingState.재학);
         model.put("members", members);
         return "member/base";
     }
 
     @RequestMapping(value = "/member/graduate", method = RequestMethod.GET)
-    public String lookupMembersGraduate(Map<String, Object> model, HttpServletRequest request) throws IOException, GeneralSecurityException {
+    public String lookupMembersGraduate(Map<String, Object> model) throws IOException, GeneralSecurityException {
         List<Member> members= memberRepository.findMemberByAttendingState(AttendingState.졸업);
         model.put("members", members);
         return "member/base";
     }
 
     @RequestMapping(value = "/member/dormant", method = RequestMethod.GET)
-    public String lookupMembersDormant(Map<String, Object> model, HttpServletRequest request) throws IOException, GeneralSecurityException {
+    public String lookupMembersDormant(Map<String, Object> model) throws IOException, GeneralSecurityException {
         List<Member> members= memberRepository.findMemberByAttendingState(AttendingState.휴학);
         model.put("members", members);
         return "member/base";
@@ -106,8 +110,9 @@ public class MemberController {
 
         return "member/base";
     }
+
     @RequestMapping(path = "/member/add", method = RequestMethod.GET)
-    public String getaddMember(Map<String, Object> model, HttpServletRequest request) throws IOException, GeneralSecurityException {
+    public String getAddMember() {
         return "member/add";
     }
 
@@ -121,7 +126,7 @@ public class MemberController {
         Member member = new Member(new CardinalNumber(Integer.parseInt(cardinalNumber)), new Name(name), new Phone(phone), new Email(email));
         if (!memberRepository.addMember(member)){
             model.put("errorMsg", "추가를 실패하였습니다.");
-            return "error";
+            return "/member/add";
         }
 
         List<Member> members = memberRepository.findAllMembers();
@@ -131,7 +136,12 @@ public class MemberController {
     }
 
     @RequestMapping(path = "/member/update", method = RequestMethod.GET)
-    public String getUpdateMember() throws IOException, GeneralSecurityException {
+    public String getUpdateMember(Map<String, Object> model, HttpServletRequest request) {
+        model.put("searchEmail", request.getParameter("searchEmail"));
+        model.put("searchPhone", request.getParameter("searchPhone"));
+        model.put("searchCardinalNumber", request.getParameter("searchCardinalNumber"));
+        model.put("searchName", request.getParameter("searchName"));
+
         return "member/update";
     }
 
@@ -150,20 +160,20 @@ public class MemberController {
         String attendingState = request.getParameter("attendingState");
 
         Member targetMember;
-        if (searchEmail != null) {
+        if (!searchEmail.equals("")) {
             targetMember = memberRepository.findOneMemberByEmail(new Email(searchEmail));
-        } else if (searchPhone != null) {
+        } else if (!searchPhone.equals("")) {
             targetMember = memberRepository.findOneMemberByPhone(new Phone(searchPhone));
-        } else if (searchCardinalNumber != null && searchName != null) {
+        } else if (!searchCardinalNumber.equals("") && !searchName.equals("")) {
             try {
                 targetMember = memberRepository.findOneMemberByCardinalNumberAndName(new CardinalNumber(Integer.parseInt(searchCardinalNumber)), new Name(searchName));
             } catch (NumberFormatException e){
                 model.put("errorMsg", "잘못된 기수입니다.");
-                return "error";
+                return "redirect:/";
             }
         } else {
             model.put("errorMsg", "해당 유저가 없습니다");
-            return "error";
+            return "redirect:/";
         }
 
         if (cardinalNumber.equals("") || name.equals("") || position.equals("") || phone.equals("")
@@ -176,25 +186,22 @@ public class MemberController {
             if (!memberRepository.updateMember(targetMember, new CardinalNumber(Integer.parseInt(cardinalNumber)), new Name(name),
                     Position.valueOf(position), new Phone(phone), new Email(email), AttendingState.valueOf(attendingState))) {
                 model.put("errorMsg", "수정을 실패하였습니다.");
-                return "error";
+                return "member/update";
             }
         } catch (NumberFormatException e) {
             model.put("errorMsg", "잘못된 기수입니다.");
-            return "error";
+            return "member/update";
         } catch (IllegalArgumentException e) {
             model.put("errorMsg", "잘못된 값을 입력하셨습니다.");
-            return "error";
+            return "member/update";
         }
 
-        List<Member> members = memberRepository.findAllMembers();
-        model.put("members", members);
-
-        return "member/base";
+        return "redirect:/";
     }
 
     @RequestMapping(value = "/members/delete", method = RequestMethod.POST)
     @ResponseBody
-    public String deleteMember(Map<String, Object> model, HttpServletRequest request) throws IOException, GeneralSecurityException{
+    public String deleteMember(HttpServletRequest request) {
 
         String memberString = request.getParameter("members");
         if (memberString.equals("null")){
@@ -206,12 +213,11 @@ public class MemberController {
 
         Iterator<JsonElement> iterator = members.iterator();
 
-
         while (iterator.hasNext()) {
             JsonElement element = iterator.next();
             JsonObject member = element.getAsJsonObject();
 
-            if (member.get("email") != null) {
+            if (!member.get("email").getAsString().equals("")) {
                 String email = member.get("email").getAsString();
                 try {
                     Member m = memberRepository.findOneMemberByEmail(new Email(email));
@@ -221,7 +227,7 @@ public class MemberController {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            } else if (member.get("phone") != null) {
+            } else if (!member.get("phone").getAsString().equals("")) {
                 String phone = member.get("phone").getAsString();
                 try {
                     Member m = memberRepository.findOneMemberByPhone(new Phone(phone));
