@@ -43,12 +43,12 @@
                 checkbox.each(function (i) {
                     var tr = checkbox.parent().parent().eq(i);
                     var td = tr.children();
-                    var a = td.children();
+                    var form = td.children();
+                    var input = form.children();
 
                     var email = td.eq(5).text();
                     var phone = td.eq(4).text();
-//                    var name = td.eq(2).text();
-                    var name = a.text();
+                    var name = input.val();
                     var cardinalNumber = Number(td.eq(1).text());
 
                     var member = new Object();
@@ -128,7 +128,15 @@
                     <td/><input type="checkbox" name="collectedMember" th:value="${member.email}" />
                     <td th:text="${member.cardinalNumber}"/>
                     <!--<td th:text="${member.name}"/>-->
-                    <td th:value="${member.name}"><a id="member_name" href="/member/update" th:text="${member.name}"></a></td>
+                    <td>
+                        <form action="/member/update" method="get">
+                            <input class="btn btn-white btn-xs" type="submit" th:value="${member.name}" />
+                            <input type="hidden" th:value="${member.cardinalNumber}" th:attr="name='searchCardinalNumber'" />
+                            <input type="hidden" th:value="${member.name}" th:attr="name='searchName'" />
+                            <input type="hidden" th:value="${member.phone}" th:attr="name='searchPhone'" />
+                            <input type="hidden" th:value="${member.email}" th:attr="name='searchEmail'" />
+                        </form>
+                    </td>
                     <td th:text="${member.position}"/>
                     <td th:text="${member.phone}"/>
                     <td th:text="${member.email}"/>

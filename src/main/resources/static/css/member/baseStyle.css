@@ -55,10 +55,13 @@
     border-color: #111111;
 }
 
+.btn-white{
+    background-color: #FFF;
+    color: #1d1d1d;
+}
+
 #filter{
     float: left;
     padding-left: 10px;
     padding-right: 15px;
-}
-#search_member_div{
 }
