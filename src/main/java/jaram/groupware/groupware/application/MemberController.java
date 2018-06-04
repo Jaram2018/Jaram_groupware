@@ -197,7 +197,7 @@ public class MemberController {
     public String deleteMember(Map<String, Object> model, HttpServletRequest request) throws IOException, GeneralSecurityException{
 
         String memberString = request.getParameter("members");
-        if (memberString.equals("null")){
+        if (memberString.equals("")){
             return "삭제할 멤버를 선택해주세요";
         }
         Gson gson = new Gson();
