@@ -29,8 +29,6 @@
             {
                 //jsonArray
                 var members = new Array();
-                var rowData = new Array();
-                var tdArr = new Array();
                 var checkbox = $("input[name=collectedMember]:checked");
 
                 checkbox.each(function (i) {
@@ -38,18 +36,11 @@
                     var td = tr.children();
                     var a = td.children();
 
-                    rowData.push(tr.text());
-
                     var email = td.eq(5).text();
                     var phone = td.eq(4).text();
 //                    var name = td.eq(2).text();
                     var name = a.text();
                     var cardinalNumber = Number(td.eq(1).text());
-
-                    tdArr.push(email);
-                    tdArr.push(phone);
-                    tdArr.push(name);
-                    tdArr.push(cardinalNumber);
 
                     var member = new Object();
 
@@ -70,7 +61,6 @@
                     data: {
                         "members": JSON.stringify(members)
                     },
-                    datatype: "json",
                     success: function (result) {
                         console.log('ok');
                         if(result == "success"){
