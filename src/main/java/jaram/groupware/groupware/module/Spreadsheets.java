@@ -12,7 +12,6 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
-import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -197,7 +196,7 @@ public class Spreadsheets implements MemberRepository {
 
         ValueRange body = new ValueRange()
                 .setValues(value);
-        UpdateValuesResponse result = service.spreadsheets().values().update(spreadsheetId, range, body)
+        service.spreadsheets().values().update(spreadsheetId, range, body)
                 .setValueInputOption("RAW")
                 .execute();
 
@@ -217,21 +216,13 @@ public class Spreadsheets implements MemberRepository {
             ));
         }
 
-        value.add(Arrays.asList(
-                "", "", "", "", "", ""
-        ));
-    }
-
-    private boolean checkIntegrity(Email email) throws IOException, GeneralSecurityException {
-        List<Member> members = findMemberByEmail(email);
-
-        return members.size() <= 1;
+        value.add(Arrays.asList("", "", "", "", "", ""));
     }
 
     @Override
     public boolean addMember(Member member) throws IOException, GeneralSecurityException {
         List<Member> members = findAllMembers();
-        if (!checkIntegrity(new Email(member.getEmail())))
+        if (findMemberByEmail(new Email(member.getEmail())).size() != 0)
             return false;
 
         members.add(member);
@@ -239,9 +230,7 @@ public class Spreadsheets implements MemberRepository {
         Collections.sort(members);
 
         writeJsonToRedis(members);
-        writeMembers();
-
-        return true;
+        return writeMembers();
     }
 
     @Override
@@ -287,7 +276,7 @@ public class Spreadsheets implements MemberRepository {
     public boolean updateMember(Member targetMember, CardinalNumber cardinalNumber, Name name, Position position, Phone phone, Email email, AttendingState attendingState) throws IOException, GeneralSecurityException {
         List<Member> members = findAllMembers();
 
-        if (!this.checkIntegrity(email)) {
+        if (!targetMember.getEmail().equals("") && findMemberByEmail(new Email(targetMember.getEmail())).size() > 1) {
             return false;
         }
 
@@ -302,9 +291,7 @@ public class Spreadsheets implements MemberRepository {
         Collections.sort(members);
 
         writeJsonToRedis(members);
-        writeMembers();
-
-        return true;
+        return writeMembers();
     }
 
     private void writeJsonToRedis(List<Member> members) {
@@ -313,7 +300,7 @@ public class Spreadsheets implements MemberRepository {
 
         String json = gson.toJson(members);
         jedis.set("members", json);
-        jedis.expire("members", 60 * 60 * 6);
+        jedis.expire("members", 10 * 60);
         jedis.close();
     }
 
@@ -329,18 +316,22 @@ public class Spreadsheets implements MemberRepository {
         members.remove(deleteMember);
 
         writeJsonToRedis(members);
-        writeMembers();
-
-        return true;
+        return writeMembers();
     }
 
     private Member getOneMember(Member targetMember, List<Member> members) {
-        for (Member member : members) {
-            if (member.getEmail().equals(targetMember.getEmail()) || member.getPhone().equals(targetMember.getPhone()) ||
-                    (member.getCardinalNumber() == targetMember.getCardinalNumber() && member.getName().equals(targetMember.getName()))) {
-                return member;
+        if (!targetMember.getEmail().equals(""))
+            for (Member member : members) {
+                if (member.getEmail().equals(targetMember.getEmail())) return member;
             }
-        }
+        else if (!targetMember.getPhone().equals(""))
+            for (Member member : members) {
+                if (member.getPhone().equals(targetMember.getPhone())) return member;
+            }
+        else if (targetMember.getCardinalNumber() != 0 && !targetMember.getName().equals(""))
+            for (Member member : members) {
+                if (member.getCardinalNumber() == targetMember.getCardinalNumber() && member.getName().equals(targetMember.getName())) return member;
+            }
 
         return null;
     }
