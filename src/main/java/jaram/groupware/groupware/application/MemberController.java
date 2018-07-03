@@ -5,7 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import jaram.groupware.groupware.model.value.*;
-import jaram.groupware.groupware.persistent.Member;
+import jaram.groupware.groupware.persistence.Member;
 import jaram.groupware.groupware.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

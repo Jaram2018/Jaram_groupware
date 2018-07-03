@@ -1,7 +1,7 @@
 package jaram.groupware.groupware.repository;
 
 import jaram.groupware.groupware.model.value.*;
-import jaram.groupware.groupware.persistent.Member;
+import jaram.groupware.groupware.persistence.Member;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;

@@ -16,7 +16,7 @@ import com.google.api.services.sheets.v4.model.ValueRange;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import jaram.groupware.groupware.model.value.*;
-import jaram.groupware.groupware.persistent.Member;
+import jaram.groupware.groupware.persistence.Member;
 import jaram.groupware.groupware.repository.MemberRepository;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
