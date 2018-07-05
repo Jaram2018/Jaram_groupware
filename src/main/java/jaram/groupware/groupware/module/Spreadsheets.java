@@ -57,18 +57,6 @@ public class Spreadsheets implements MemberRepository {
         return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("hyu.cse.jaram@gmail.com");
     }
 
-    @Override
-    public List<Member> findAllMembers() throws IOException, GeneralSecurityException {
-        Jedis jedis = new Jedis("localhost", 6379);
-        Gson gson = new Gson();
-
-        if (jedis.get("members") == null) {
-            this.getMembers();
-        }
-
-        return gson.fromJson(jedis.get("members"), new TypeToken<List<Member>>() {}.getType());
-    }
-
     private boolean getMembers() throws IOException, GeneralSecurityException {
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         final String range = "A2:F";
@@ -99,91 +87,21 @@ public class Spreadsheets implements MemberRepository {
         return true;
     }
 
-    @Override
-    public List<Member> findMemberByCardinalNumber(CardinalNumber cardinalNumber) throws IOException, GeneralSecurityException {
-        List<Member> members = findAllMembers();
-        List<Member> result = new LinkedList<>();
-
-        for (Member member : members) {
-            if (member.getCardinalNumber() == cardinalNumber.getCardinalNumber()) {
-                result.add(member);
-            }
-        }
-
-        return result;
-    }
 
     @Override
-    public List<Member> findMemberByName(Name name) throws IOException, GeneralSecurityException {
-        List<Member> members = findAllMembers();
-        List<Member> result = new LinkedList<>();
+    public List<Member> findAllMembers() throws IOException, GeneralSecurityException {
+        Jedis jedis = new Jedis("localhost", 6379);
+        Gson gson = new Gson();
 
-        for (Member member : members) {
-            if (member.getName().contains(name.getName())) {
-                result.add(member);
-            }
+        if (jedis.get("members") == null) {
+            this.getMembers();
         }
 
-        return result;
+        return gson.fromJson(jedis.get("members"), new TypeToken<List<Member>>() {}.getType());
     }
 
-    @Override
-    public List<Member> findMemberByPosition(Position position) throws IOException, GeneralSecurityException {
-        List<Member> members = findAllMembers();
-        List<Member> result = new LinkedList<>();
 
-        for (Member member : members) {
-            if (member.getPosition().equals(position.getPosition())) {
-                result.add(member);
-            }
-        }
-
-        return result;
-    }
-
-    @Override
-    public List<Member> findMemberByPhone(Phone phone) throws IOException, GeneralSecurityException {
-        List<Member> members = findAllMembers();
-        List<Member> result = new LinkedList<>();
-
-        for (Member member : members) {
-            if (member.getPhone().contains(phone.getPhone())) {
-                result.add(member);
-            }
-        }
-
-        return result;
-    }
-
-    @Override
-    public List<Member> findMemberByEmail(Email email) throws IOException, GeneralSecurityException {
-        List<Member> members = findAllMembers();
-        List<Member> result = new LinkedList<>();
-
-        for (Member member : members) {
-            if (member.getEmail().contains(email.getEmail())) {
-                result.add(member);
-            }
-        }
-
-        return result;
-    }
-
-    @Override
-    public List<Member> findMemberByAttendingState(AttendingState attendingState) throws IOException, GeneralSecurityException {
-        List<Member> members = findAllMembers();
-        List<Member> result = new LinkedList<>();
-
-        for (Member member : members) {
-            if (member.getAttendingState().equals(attendingState.getAttendingState())) {
-                result.add(member);
-            }
-        }
-
-        return result;
-    }
-    
-    private boolean writeMembers() throws IOException, GeneralSecurityException {
+    private boolean saveMembers() throws IOException, GeneralSecurityException {
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         final String range = "A2:F";
 
@@ -220,78 +138,17 @@ public class Spreadsheets implements MemberRepository {
     }
 
     @Override
-    public boolean addMember(Member member) throws IOException, GeneralSecurityException {
+    public List<Member> findMemberByEmail(Email email) throws IOException, GeneralSecurityException {
         List<Member> members = findAllMembers();
-        if (findMemberByEmail(new Email(member.getEmail())).size() != 0)
-            return false;
-
-        members.add(member);
-
-        Collections.sort(members);
-
-        writeJsonToRedis(members);
-        return writeMembers();
-    }
-
-    @Override
-    public Member findOneMemberByEmail(Email email) throws IOException, GeneralSecurityException {
-        List<Member> members = findAllMembers();
+        List<Member> result = new LinkedList<>();
 
         for (Member member : members) {
-            if (member.getEmail().equals(email.getEmail())) {
-                return member;
+            if (member.getEmail().contains(email.getEmail())) {
+                result.add(member);
             }
         }
 
-        return null;
-    }
-
-    @Override
-    public Member findOneMemberByPhone(Phone phone) throws IOException, GeneralSecurityException {
-        List<Member> members = findAllMembers();
-
-        for (Member member : members) {
-            if (member.getPhone().equals(phone.getPhone())) {
-                return member;
-            }
-        }
-
-        return null;
-    }
-
-    @Override
-    public Member findOneMemberByCardinalNumberAndName(CardinalNumber cardinalNumber, Name name) throws IOException, GeneralSecurityException {
-        List<Member> members = findAllMembers();
-
-        for (Member member : members) {
-            if (member.getCardinalNumber() == cardinalNumber.getCardinalNumber() && member.getName().equals(name.getName())) {
-                return member;
-            }
-        }
-
-        return null;
-    }
-
-    @Override
-    public boolean updateMember(Member targetMember, CardinalNumber cardinalNumber, Name name, Position position, Phone phone, Email email, AttendingState attendingState) throws IOException, GeneralSecurityException {
-        List<Member> members = findAllMembers();
-
-        if (!targetMember.getEmail().equals("") && findMemberByEmail(new Email(targetMember.getEmail())).size() > 1) {
-            return false;
-        }
-
-        Member updateMember = getOneMember(targetMember, members);
-
-        if (updateMember == null) {
-            return false;
-        }
-
-        updateMember.updateMember(cardinalNumber, name, position, phone, email, attendingState);
-
-        Collections.sort(members);
-
-        writeJsonToRedis(members);
-        return writeMembers();
+        return result;
     }
 
     private void writeJsonToRedis(List<Member> members) {
@@ -304,35 +161,5 @@ public class Spreadsheets implements MemberRepository {
         jedis.close();
     }
 
-    @Override
-    public boolean deleteMember(Member targetMember) throws IOException, GeneralSecurityException {
-        List<Member> members = findAllMembers();
-        Member deleteMember = getOneMember(targetMember, members);
 
-        if (deleteMember == null){
-            return false;
-        }
-
-        members.remove(deleteMember);
-
-        writeJsonToRedis(members);
-        return writeMembers();
-    }
-
-    private Member getOneMember(Member targetMember, List<Member> members) {
-        if (!targetMember.getEmail().equals(""))
-            for (Member member : members) {
-                if (member.getEmail().equals(targetMember.getEmail())) return member;
-            }
-        else if (!targetMember.getPhone().equals(""))
-            for (Member member : members) {
-                if (member.getPhone().equals(targetMember.getPhone())) return member;
-            }
-        else if (targetMember.getCardinalNumber() != 0 && !targetMember.getName().equals(""))
-            for (Member member : members) {
-                if (member.getCardinalNumber() == targetMember.getCardinalNumber() && member.getName().equals(targetMember.getName())) return member;
-            }
-
-        return null;
-    }
 }
